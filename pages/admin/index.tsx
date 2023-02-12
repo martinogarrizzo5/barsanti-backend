@@ -1,7 +1,8 @@
+import axios from "axios";
 import React from "react";
 
 function Home() {
-  return <div>Home</div>;
+  return <div></div>;
 }
 
 export default Home;
