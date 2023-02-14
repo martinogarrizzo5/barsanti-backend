@@ -4,13 +4,17 @@ import { User as FirebaseUser } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { create } from "zustand";
+import axios from "axios";
 
 interface AuthState {
   isLoading: boolean;
   user: User | null;
-  handleFirebaseAuthStateChanged: (user: FirebaseUser | null) => Promise<void>;
+  handleFirebaseDashboardAuthState: (
+    user: FirebaseUser | null
+  ) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  clear: () => void;
 }
 
 const useAuthStore = create<AuthState>((set) => ({
@@ -24,6 +28,7 @@ const useAuthStore = create<AuthState>((set) => ({
       console.log(err);
       const error = err as FirebaseError;
       if (error.code !== "auth/popup-closed-by-user") {
+        // TODO: show popup of error if necessary
       }
     }
   },
@@ -32,15 +37,24 @@ const useAuthStore = create<AuthState>((set) => ({
     await firebaseAuth.signOut();
     set({ isLoading: false, user: null });
   },
-  handleFirebaseAuthStateChanged: async (user: FirebaseUser | null) => {
+  handleFirebaseDashboardAuthState: async (user: FirebaseUser | null) => {
     if (!user) {
       set({ isLoading: false, user: null });
       return;
     }
 
-    console.log(user);
-    // TODO: check user on server
+    try {
+      const res = await axios.post("/api/auth/login");
+      console.log(res.data.user);
+      set({ user: res.data.user });
+    } catch (err) {
+      console.log(err);
+    }
+
     set({ isLoading: false });
+  },
+  clear: () => {
+    set({ isLoading: false, user: null });
   },
 }));
 

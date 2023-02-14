@@ -9,10 +9,10 @@ import { FiSettings } from "react-icons/fi";
 import classnames from "classnames";
 import { useRouter } from "next/router";
 import logoImg from "@/public/barsanti.webp";
-import { signOut } from "firebase/auth";
-import { firebaseAuth } from "@/firebase/firebaseApp";
+import useAuthStore from "@/store/authStore";
 
 function SideBar() {
+  const auth = useAuthStore();
   const router = useRouter();
 
   const links = [
@@ -26,7 +26,7 @@ function SideBar() {
     "bg-controlActiveBackground text-primary border-r-4 border-primary";
 
   const handleLogout = () => {
-    signOut(firebaseAuth);
+    auth.signOut();
   };
 
   return (

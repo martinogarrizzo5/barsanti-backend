@@ -1,3 +1,5 @@
+// to open db editor run "npx prisma studio"
+
 generator client {
   provider = "prisma-client-js"
 }
