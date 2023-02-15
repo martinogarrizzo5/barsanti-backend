@@ -57,7 +57,6 @@ export default function App({ Component, pageProps }: AppProps) {
   // setup progress bar on route change
   useEffect(() => {
     const handleRouteChangeStart = (url: any) => {
-      console.log("start");
       NProgress.start();
     };
     const handleRouteChangeEnd = (url: any) => {

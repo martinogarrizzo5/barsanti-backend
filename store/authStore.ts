@@ -34,7 +34,6 @@ const useAuthStore = create<AuthState>((set) => ({
     }
   },
   signOut: async () => {
-    set({ isLoading: true });
     await firebaseAuth.signOut();
     set({ isLoading: false, user: null });
   },
@@ -50,14 +49,24 @@ const useAuthStore = create<AuthState>((set) => ({
       set({ user: res.data.user });
     } catch (err) {
       const error = err as AxiosError;
-      if (error.request.status == 403) {
-        Swal.fire({
-          icon: "error",
-          title: "Accesso non consentito",
-          text: "Hai un account valido ma non possiedi i privilegi per modificare dati. Contatta un amministratore",
-          confirmButtonText: "Ho capito",
-        });
-      }
+      const ErrorMessage403 =
+        "Hai un account valido ma non possiedi i privilegi per accedere alla dashboard. Cambia account o contatta un amministratore";
+      const ErrorMessage401 =
+        "Credenziali non valide. Cambia account o contatta un amministratore";
+      const errorMessage =
+        error.response?.status === 403 ? ErrorMessage403 : ErrorMessage401;
+
+      Swal.fire({
+        icon: "error",
+        title: "Accesso non consentito",
+        text: errorMessage,
+        confirmButtonText: "Ho capito",
+        confirmButtonColor: "var(--primaryColor)",
+        didClose: async () => {
+          set({ user: null });
+          await firebaseAuth.signOut();
+        },
+      });
     }
 
     set({ isLoading: false });

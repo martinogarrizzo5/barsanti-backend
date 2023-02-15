@@ -1,4 +1,5 @@
 import admin from "@/firebase/firebaseAdmin";
+import { Role } from "@prisma/client";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import { NextApiRequest } from "next";
 import prisma from "./prisma";
@@ -33,7 +34,7 @@ export async function checkUserEditPrivilege(userToken: DecodedIdToken) {
       email: userToken.email,
     },
   });
-  if (user?.isEditor) return user;
+  if (user?.isEditor || user?.role === Role.ADMIN) return user;
 
   return null;
 }
