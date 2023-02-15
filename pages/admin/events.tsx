@@ -1,8 +1,8 @@
 import axios from "axios";
 import React from "react";
 
-function Home() {
+function EventsPage() {
   return <div></div>;
 }
 
-export default Home;
+export default EventsPage;

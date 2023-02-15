@@ -1,17 +1,21 @@
 import { useEffect } from "react";
 import Layout from "@/layout/Layout";
-import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { onAuthStateChanged } from "firebase/auth";
 import { firebaseAuth } from "@/firebase/firebaseApp";
-import { useRouter } from "next/router";
+import Router, { useRouter } from "next/router";
 import useAuthStore from "@/store/authStore";
 import axios from "axios";
+import NProgress from "nprogress";
+import "@/styles/globals.css";
+import "@/styles/nprogress.css";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const auth = useAuthStore();
 
+  // setup auth effect on mount of the app
   useEffect(() => {
     const unsubscribeAuthObserver = onAuthStateChanged(
       firebaseAuth,
@@ -34,6 +38,7 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
+  // redirect based on auth
   useEffect(() => {
     if (auth.isLoading) return;
 
@@ -48,6 +53,26 @@ export default function App({ Component, pageProps }: AppProps) {
       }
     }
   }, [auth]);
+
+  // setup progress bar on route change
+  useEffect(() => {
+    const handleRouteChangeStart = (url: any) => {
+      console.log("start");
+      NProgress.start();
+    };
+    const handleRouteChangeEnd = (url: any) => {
+      NProgress.done();
+    };
+    Router.events.on("routeChangeStart", handleRouteChangeStart);
+    Router.events.on("routeChangeComplete", handleRouteChangeEnd);
+    Router.events.on("routeChangeError", handleRouteChangeEnd);
+
+    return () => {
+      Router.events.off("routeChangeStart", handleRouteChangeStart);
+      Router.events.off("routeChangeComplete", handleRouteChangeEnd);
+      Router.events.off("routeChangeError", handleRouteChangeEnd);
+    };
+  }, []);
 
   if (auth.isLoading)
     return (

@@ -37,6 +37,13 @@ async function verifyIdentity(req: NextApiRequest, res: NextApiResponse) {
       .json({ message: "Token di autenticazione invalido" });
   }
 
+  // match only @barsanti.edu.it emails
+  const userEmail = firebaseToken.email;
+  const emailPattern = /^[\w-\.]+@barsanti\.edu\.it$/i;
+  if (!userEmail || !emailPattern.test(userEmail)) {
+    return res.status(401).json({ message: "Email mancante non valida" });
+  }
+
   const user = await checkUserEditPrivilege(firebaseToken);
   if (!user) {
     return res

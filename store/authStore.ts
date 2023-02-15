@@ -4,7 +4,8 @@ import { User as FirebaseUser } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { create } from "zustand";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import Swal from "sweetalert2";
 
 interface AuthState {
   isLoading: boolean;
@@ -48,7 +49,15 @@ const useAuthStore = create<AuthState>((set) => ({
       console.log(res.data.user);
       set({ user: res.data.user });
     } catch (err) {
-      console.log(err);
+      const error = err as AxiosError;
+      if (error.request.status == 403) {
+        Swal.fire({
+          icon: "error",
+          title: "Accesso non consentito",
+          text: "Hai un account valido ma non possiedi i privilegi per modificare dati. Contatta un amministratore",
+          confirmButtonText: "Ho capito",
+        });
+      }
     }
 
     set({ isLoading: false });
