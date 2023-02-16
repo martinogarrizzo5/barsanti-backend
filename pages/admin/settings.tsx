@@ -1,7 +1,15 @@
+import Head from "next/head";
 import React from "react";
 
 function SettingsPage() {
-  return <div>SettingsPage</div>;
+  return (
+    <>
+      <Head>
+        <title>Impostazioni</title>
+      </Head>
+      <div></div>
+    </>
+  );
 }
 
 export default SettingsPage;

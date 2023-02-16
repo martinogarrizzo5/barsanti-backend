@@ -1,15 +1,15 @@
 import Head from "next/head";
 import React from "react";
 
-function UsersPage() {
+function SectionsPage() {
   return (
     <>
       <Head>
-        <title>Utenti</title>
+        <title>Categorie</title>
       </Head>
       <div></div>
     </>
   );
 }
 
-export default UsersPage;
+export default SectionsPage;

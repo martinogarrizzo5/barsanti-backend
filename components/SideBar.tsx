@@ -17,7 +17,7 @@ function SideBar() {
 
   const links = [
     { name: "Eventi", icon: BsCalendar3, path: "/admin/events" },
-    { name: "Categorie", icon: BiCategory, path: "/admin/sections" },
+    { name: "Categorie", icon: BiCategory, path: "/admin/categories" },
     { name: "Utenti", icon: BiUser, path: "/admin/users" },
     { name: "Impostazioni", icon: FiSettings, path: "/admin/settings" },
   ];

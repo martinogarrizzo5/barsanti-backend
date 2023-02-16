@@ -44,7 +44,7 @@ const useAuthStore = create<AuthState>((set) => ({
     }
 
     try {
-      const res = await axios.post("/api/auth/login");
+      const res = await axios.post("/api/auth/dashboard-login");
       console.log(res.data.user);
       set({ user: res.data.user });
     } catch (err) {
