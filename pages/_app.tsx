@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Layout from "@/layout/Layout";
 import type { AppProps } from "next/app";
 import { onAuthStateChanged } from "firebase/auth";
@@ -6,10 +6,14 @@ import { firebaseAuth } from "@/firebase/firebaseApp";
 import Router, { useRouter } from "next/router";
 import useAuthStore from "@/store/authStore";
 import axios from "axios";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import NProgress from "nprogress";
 import "@/styles/globals.css";
 import "@/styles/nprogress.css";
 import "sweetalert2/dist/sweetalert2.min.css";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -27,6 +31,13 @@ export default function App({ Component, pageProps }: AppProps) {
         // attach auth token to all requests
         const token = await user.getIdToken();
         axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+
+        // on each request refresh token if necessary and attach it to the request
+        const interceptor = axios.interceptors.request.use(async (config) => {
+          const token = await user.getIdToken();
+          axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+          return config;
+        });
 
         // verify user privilegies and update global state
         auth.handleFirebaseDashboardAuthState(user);
@@ -81,8 +92,11 @@ export default function App({ Component, pageProps }: AppProps) {
     );
 
   return (
-    <Layout>
-      <Component {...pageProps} />
-    </Layout>
+    <QueryClientProvider client={queryClient}>
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }

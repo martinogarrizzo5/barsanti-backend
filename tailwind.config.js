@@ -20,6 +20,8 @@ module.exports = {
         controlActiveBackground: "#F1F1F1",
         controlForeground: "#5E6F74",
         controlActiveForeground: "#2F3E46",
+        grayBorder: "#D0DDE1",
+        placeholder: "#B8C0C7",
       },
     },
   },

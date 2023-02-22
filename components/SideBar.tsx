@@ -30,11 +30,11 @@ function SideBar() {
   };
 
   return (
-    <nav className="flex h-[100vh] w-72 flex-col border-r-[1px] border-[#D0DDE1] bg-white">
+    <nav className="flex h-[100vh]  w-72 flex-shrink-0 flex-col border-r-[1px] border-grayBorder bg-white">
       <Image
         alt="logo of the school"
         src={logoImg}
-        className="mx-auto mt-8 mb-24 w-[120px]"
+        className="mx-auto mt-16 mb-24 w-[120px]"
       />
       <div className="w-full">
         {links.map((link) => (

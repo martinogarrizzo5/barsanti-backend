@@ -1,9 +1,9 @@
 import admin from "@/firebase/firebaseAdmin";
-import { checkUserEditPrivilege } from "@/lib/checkAuth";
 import { Role, User } from "@prisma/client";
 import { DecodedIdToken } from "firebase-admin/lib/auth/token-verifier";
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextHandler } from "next-connect";
+import prisma from "@/lib/prisma";
 
 export interface AuthRequest extends NextApiRequest {
   user?: User | null;
@@ -28,6 +28,7 @@ export async function auth(
 
   const [authType, token] = authHeader.split(" ");
   let firebaseToken: DecodedIdToken | null = null;
+  // console.log(token);
 
   // verify token with firebase admin sdk
   try {

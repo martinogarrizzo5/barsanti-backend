@@ -1,0 +1,51 @@
+first folder structure for files in storage
+
+- root
+    - files
+        - category1
+            - image.jpg
+            - news1
+                - image.png
+                - riunione.pdf
+                - altro.txt
+            - news2
+                - image.jpg
+                - testo.pdf
+                - some.otf
+        - category2
+            - image.jpg
+            - news3
+                - image.png
+                - riunione.pdf
+                - altro.txt
+            - news4
+                - image.jpg
+                - testo.pdf
+                - some.otf
+
+second folder structure
+
+- root
+    - files
+        - categories
+            - 1
+                - image.jpg
+            - 2
+                - image.jpg
+        - news
+            - 1
+                - image.png
+                - riunione.pdf
+                - altro.txt
+            - 2
+                - image.jpg
+                - testo.pdf
+                - some.otf
+            - 3
+                - image.png
+                - riunione.pdf
+                - altro.txt
+            - 4
+                - image.jpg
+                - testo.pdf
+                - some.otf

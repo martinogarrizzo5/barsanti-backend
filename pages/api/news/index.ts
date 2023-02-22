@@ -8,8 +8,31 @@ export default apiHandler()
   .get(getNews)
   .post(auth, editorPrivilege, createNews);
 
+const getNewsSchema = z.object({
+  page: z.number().optional().default(0),
+  search: z.string().optional(),
+});
 async function getNews(req: NextApiRequest, res: NextApiResponse) {
-  const news = await prisma.news.findMany();
+  const result = getNewsSchema.safeParse(req.query);
+  if (!result.success) {
+    return res.status(400).json({ error: "Invalid parameters" });
+  }
+
+  const { page, search } = result.data;
+  const resultsPerPage = 15;
+
+  const news = await prisma.news.findMany({
+    where: {
+      title: {
+        search: search,
+      },
+      description: {
+        search: search,
+      },
+    },
+    skip: page * resultsPerPage,
+    take: resultsPerPage,
+  });
 
   return res.json(news);
 }

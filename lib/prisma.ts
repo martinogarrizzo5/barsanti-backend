@@ -7,7 +7,7 @@ import { PrismaClient } from "@prisma/client";
 // https://pris.ly/d/help/next-js-best-practices
 
 declare global {
-  var prisma: PrismaClient;
+  var prisma: any;
 }
 
 let prisma: PrismaClient;
