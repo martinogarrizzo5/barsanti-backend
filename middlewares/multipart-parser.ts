@@ -1,5 +1,5 @@
 import formidable, { Files, Fields, File } from "formidable";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiResponse } from "next";
 import { NextHandler } from "next-connect";
 import { AuthRequest } from "./auth";
 

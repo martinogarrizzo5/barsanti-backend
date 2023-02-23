@@ -10,6 +10,7 @@ import {
   parseMultipart,
 } from "@/middlewares/multipart-parser";
 import { fromZodError } from "zod-validation-error";
+import setupUploadDir from "@/lib/setupUploadDir";
 
 export const config = {
   api: {
@@ -71,6 +72,11 @@ async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
   if (existingCategory !== null && existingCategory.id !== categoryId) {
     return res.status(400).json({ message: "Categoria già esistente" });
   }
+
+  // save the image
+  const baseUploadDir = await setupUploadDir();
+  if (baseUploadDir === null)
+    return res.status(500).json({ message: "Impossibile salvare il file" });
 
   await prisma.category.update({
     where: { id: categoryId },

@@ -63,7 +63,7 @@ function EditCategoryPage() {
           edit
           onSubmit={(data) => editCategory.mutate(data)}
           isSubmitting={editCategory.isLoading}
-          defaultData={{ image: category.imageUrl, name: category.name }}
+          defaultData={{ image: category.imageName, name: category.name }}
         />
         {isRefetching && <RefetchingIndicator />}
       </main>

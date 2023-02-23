@@ -9,7 +9,7 @@ import {
   allowOnlyImages,
 } from "@/middlewares/multipart-parser";
 import { File } from "formidable";
-import { numericString } from "@/lib/zodExtensions";
+import setupUploadDir from "@/lib/setupUploadDir";
 
 export const config = {
   api: {
@@ -68,10 +68,15 @@ async function createCategory(req: MultipartAuthRequest, res: NextApiResponse) {
     return res.status(400).json({ message: "Categoria già esistente" });
   }
 
+  // save the image
+  const baseUploadDir = await setupUploadDir();
+  if (baseUploadDir === null)
+    return res.status(500).json({ message: "Impossibile salvare il file" });
+
   await prisma.category.create({
     data: {
       name: categoryData.name,
-      imageUrl: "https://picsum.photos/200/300",
+      imageName: "https://picsum.photos/200/300",
     },
   });
 
