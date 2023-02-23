@@ -9,7 +9,7 @@ export default apiHandler().get(serveFile);
 async function serveFile(req: NextApiRequest, res: NextApiResponse) {
   const requestedImage = req.query.slug;
   if (!requestedImage || !Array.isArray(requestedImage)) {
-    return res.status(404).json({});
+    return res.status(404).end();
   }
 
   const uploadDir = await setupUploadDir();

@@ -4,11 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Head from "next/head";
 import BackButton from "@/components/BackButton";
 import CategoryForm, { CategoryFormData } from "@/components/CategoryForm";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Category } from "@prisma/client";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import ErrorLoading from "@/components/ErrorLoading";
 import RefetchingIndicator from "@/components/RefetchingIndicator";
+import Toast from "@/components/Toast";
 
 function EditCategoryPage() {
   const queryClient = useQueryClient();
@@ -42,7 +43,18 @@ function EditCategoryPage() {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["categories"]);
+        Toast.fire({
+          icon: "success",
+          title: "Categoria aggiunta con successo",
+        });
         router.replace("/admin/categories");
+      },
+      onError: (err) => {
+        const error = err as AxiosError;
+        Toast.fire({
+          icon: "error",
+          title: (error.response?.data as any).message,
+        });
       },
     }
   );

@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
-import path from "path";
 
 export default function handler() {
   const apiHandler = nextConnect<NextApiRequest, NextApiResponse>({
