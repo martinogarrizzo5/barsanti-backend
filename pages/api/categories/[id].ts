@@ -9,8 +9,12 @@ import {
   MultipartAuthRequest,
   parseMultipart,
 } from "@/middlewares/multipart-parser";
-import { fromZodError } from "zod-validation-error";
-import setupUploadDir from "@/lib/setupUploadDir";
+import setupUploadDir, { ensureDirExistance } from "@/lib/setupUploadDir";
+import { categoryFormatter as formatCategory } from "@/lib/dbFormatters";
+import path from "path";
+import { categoryUploadPath } from "@/lib/uploadFolders";
+import { File } from "formidable";
+import fs from "fs/promises";
 
 export const config = {
   api: {
@@ -40,7 +44,7 @@ async function getCategory(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).json({ message: "Categoria non trovata" });
   }
 
-  return res.json(category);
+  return res.json(formatCategory(category));
 }
 
 const editCategorySchema = z.object({
@@ -73,15 +77,31 @@ async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
     return res.status(400).json({ message: "Categoria già esistente" });
   }
 
-  // save the image
-  const baseUploadDir = await setupUploadDir();
-  if (baseUploadDir === null)
-    return res.status(500).json({ message: "Impossibile salvare il file" });
-
   await prisma.category.update({
     where: { id: categoryId },
     data: categoryData,
   });
+
+  // save the image if present
+  if (req.files && req.files.image instanceof File) {
+    const categoryImage = req.files.image as File;
+
+    const imageExtension = path.extname(categoryImage.originalFilename ?? "");
+    const oldPath = categoryImage.filepath;
+    const uploadDir = await setupUploadDir();
+    if (uploadDir === null)
+      return res.status(500).json({ message: "Impossibile salvare il file" });
+
+    const imageDir = path.join(
+      uploadDir,
+      categoryUploadPath,
+      categoryId.toString()
+    );
+    await ensureDirExistance(imageDir);
+    const newPath = path.join(imageDir, "image" + imageExtension);
+
+    await fs.rename(oldPath, newPath);
+  }
 
   return res.json({ message: "Categoria modificata con successo" });
 }

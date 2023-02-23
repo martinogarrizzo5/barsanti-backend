@@ -12,5 +12,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // rewrite all /images requests to /api/uploads/images
+  if (request.nextUrl.pathname.startsWith("/images")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/api/uploads" + url.pathname;
+
+    return NextResponse.rewrite(url);
+  }
+
   return NextResponse.next();
 }

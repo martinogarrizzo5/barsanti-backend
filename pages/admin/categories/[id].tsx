@@ -23,7 +23,9 @@ function EditCategoryPage() {
   } = useQuery({
     queryKey: ["categories", id],
     queryFn: (data) =>
-      axios.get<Category>(`/api/categories/${id}`).then((res) => res.data),
+      axios
+        .get<Category & { imageUrl: string }>(`/api/categories/${id}`)
+        .then((res) => res.data),
   });
 
   const editCategory = useMutation(
@@ -63,7 +65,7 @@ function EditCategoryPage() {
           edit
           onSubmit={(data) => editCategory.mutate(data)}
           isSubmitting={editCategory.isLoading}
-          defaultData={{ image: category.imageName, name: category.name }}
+          defaultData={{ image: category.imageUrl, name: category.name }}
         />
         {isRefetching && <RefetchingIndicator />}
       </main>

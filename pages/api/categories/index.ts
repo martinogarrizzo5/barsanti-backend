@@ -9,7 +9,10 @@ import {
   allowOnlyImages,
 } from "@/middlewares/multipart-parser";
 import { File } from "formidable";
-import setupUploadDir from "@/lib/setupUploadDir";
+import setupUploadDir, { ensureDirExistance } from "@/lib/setupUploadDir";
+import fs from "fs/promises";
+import path from "path";
+import { categoryUploadPath } from "@/lib/uploadFolders";
 
 export const config = {
   api: {
@@ -68,17 +71,40 @@ async function createCategory(req: MultipartAuthRequest, res: NextApiResponse) {
     return res.status(400).json({ message: "Categoria già esistente" });
   }
 
-  // save the image
-  const baseUploadDir = await setupUploadDir();
-  if (baseUploadDir === null)
-    return res.status(500).json({ message: "Impossibile salvare il file" });
+  const imageExtension = path.extname(categoryImage.originalFilename ?? "");
+  const oldPath = categoryImage.filepath;
 
-  await prisma.category.create({
+  const category = await prisma.category.create({
     data: {
       name: categoryData.name,
-      imageName: "https://picsum.photos/200/300",
+      imageName: "image" + imageExtension,
     },
   });
 
-  return res.json({ message: "Categoria creata con successo" });
+  try {
+    // save the image
+    const uploadDir = await setupUploadDir();
+    if (uploadDir === null)
+      return res.status(500).json({ message: "Impossibile salvare il file" });
+
+    const imageDir = path.join(
+      uploadDir,
+      categoryUploadPath,
+      category.id.toString()
+    );
+    const newPath = path.join(imageDir, "image" + imageExtension);
+
+    // check existance of the directory
+    await ensureDirExistance(imageDir);
+    await fs.rename(oldPath, newPath);
+
+    return res.json({ message: "Categoria creata con successo" });
+  } catch (err) {
+    // rollback the category creation
+    await prisma.category.delete({
+      where: { id: category.id },
+    });
+
+    throw err;
+  }
 }

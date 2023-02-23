@@ -58,21 +58,17 @@ export function ImagePickerWithPreview(props: IImagePickerWithPreviewProps) {
         )}
       >
         {props.value instanceof File && (
-          <Image
+          <img
             src={URL.createObjectURL(props.value)}
             alt="preview"
-            width={176}
-            height={224}
-            style={{ objectFit: "cover" }}
+            className="h-full w-full object-cover"
           />
         )}
         {typeof props.value === "string" && (
-          <Image
+          <img
             src={props.value}
             alt="preview"
-            width={176}
-            height={224}
-            style={{ objectFit: "cover" }}
+            className="h-full w-full object-cover"
           />
         )}
       </div>
