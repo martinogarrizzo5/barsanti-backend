@@ -3,7 +3,7 @@ import { BsCheck } from "react-icons/bs";
 import { useForm, Controller } from "react-hook-form";
 import { ImagePickerWithPreview } from "@/components/ImagePicker";
 import classNames from "classnames";
-import { BeatLoader, ClipLoader } from "react-spinners";
+import { AiOutlineDelete } from "react-icons/ai";
 
 export type CategoryFormData = {
   name: string;
@@ -15,6 +15,7 @@ interface CategoryFormProps {
   defaultData?: CategoryFormData;
   isSubmitting?: boolean;
   edit?: boolean;
+  onDelete?: () => void;
 }
 
 function CategoryForm(props: CategoryFormProps) {
@@ -83,22 +84,33 @@ function CategoryForm(props: CategoryFormProps) {
           />
         </div>
       </div>
-      <button
-        type="submit"
-        className={classNames(
-          "btn flex items-center self-end px-8 py-2 text-lg",
-          props.edit && !isDirty && "btn-disabled"
+      <div className="flex justify-end">
+        {props.edit && (
+          <button
+            className="btn btn-delete mx-4 flex items-center px-8 py-2 text-lg"
+            onClick={props.onDelete}
+          >
+            <AiOutlineDelete className="mr-2 text-2xl" />
+            <span>Elimina</span>
+          </button>
         )}
-      >
-        {props.isSubmitting ? (
-          <span>Attendi...</span>
-        ) : (
-          <>
-            <BsCheck className="mr-2 text-[1.75rem]" />
-            <span>Salva</span>
-          </>
-        )}
-      </button>
+        <button
+          type="submit"
+          className={classNames(
+            "btn flex items-center self-end px-8 py-2 text-lg",
+            props.edit && !isDirty && "btn-disabled"
+          )}
+        >
+          {props.isSubmitting ? (
+            <span>Attendi...</span>
+          ) : (
+            <>
+              <BsCheck className="mr-2 text-[1.75rem]" />
+              <span>Salva</span>
+            </>
+          )}
+        </button>
+      </div>
     </form>
   );
 }

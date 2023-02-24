@@ -1,1 +1,1 @@
-export const categoryUploadPath = "/categories";
+export const categoryImageDir = "/images/categories";

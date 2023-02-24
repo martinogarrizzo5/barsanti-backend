@@ -17,11 +17,19 @@ async function serveFile(req: NextApiRequest, res: NextApiResponse) {
     return res.status(500).json({ message: "Impossibile accedere al file" });
   }
 
+  // prevent path traversal attack
   const subPath = requestedImage.join("/");
-  const imagePath = path.join(uploadDir, subPath);
+  var safePath = path.normalize(subPath).replace(/^(\.\.(\/|\\|$))+/, "");
+  if (safePath.indexOf("\0") !== -1) {
+    return res.status(400).end();
+  }
 
+  const imagePath = path.join(uploadDir, "images", safePath);
   const fileStream = fs.createReadStream(imagePath);
+
+  res.setHeader("Cache-Control", "public, max-age=3600");
   fileStream.pipe(res);
+
   fileStream.on("error", (err: any) => {
     if (err.code === "ENOENT") {
       return res.status(404).end();

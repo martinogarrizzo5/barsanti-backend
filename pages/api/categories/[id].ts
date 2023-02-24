@@ -10,9 +10,9 @@ import {
   parseMultipart,
 } from "@/middlewares/multipart-parser";
 import setupUploadDir, { ensureDirExistance } from "@/lib/setupUploadDir";
-import { categoryFormatter as formatCategory } from "@/lib/dbFormatters";
+import { categoryDto as formatCategory } from "@/dto/categoryDto";
 import path from "path";
-import { categoryUploadPath } from "@/lib/uploadFolders";
+import { categoryImageDir } from "@/lib/uploadFolders";
 import { File } from "formidable";
 import fs from "fs/promises";
 
@@ -94,7 +94,7 @@ async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
 
     const imageDir = path.join(
       uploadDir,
-      categoryUploadPath,
+      categoryImageDir,
       categoryId.toString()
     );
     await ensureDirExistance(imageDir);
@@ -122,6 +122,18 @@ async function deleteCategory(req: NextApiRequest, res: NextApiResponse) {
     await prisma.category.delete({ where: { id: id } });
   } catch (err) {
     return res.json({ message: "Categoria inesistente" });
+  }
+
+  // delete the image related
+  try {
+    const uploadDir = await setupUploadDir();
+    if (uploadDir === null) throw new Error("Impossibile eliminare il file");
+
+    await fs.rm(path.join(uploadDir, categoryImageDir, id.toString()), {
+      recursive: true,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Impossibile eliminare il file" });
   }
 
   return res.json({ message: "Categoria eliminata con successo" });

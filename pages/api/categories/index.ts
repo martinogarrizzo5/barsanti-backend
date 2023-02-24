@@ -12,7 +12,7 @@ import { File } from "formidable";
 import setupUploadDir, { ensureDirExistance } from "@/lib/setupUploadDir";
 import fs from "fs/promises";
 import path from "path";
-import { categoryUploadPath } from "@/lib/uploadFolders";
+import { categoryImageDir } from "@/lib/uploadFolders";
 
 export const config = {
   api: {
@@ -89,10 +89,10 @@ async function createCategory(req: MultipartAuthRequest, res: NextApiResponse) {
 
     const imageDir = path.join(
       uploadDir,
-      categoryUploadPath,
+      categoryImageDir,
       category.id.toString()
     );
-    const newPath = path.join(imageDir, "image" + imageExtension);
+    const newPath = path.join(imageDir, category.imageName);
 
     // check existance of the directory
     await ensureDirExistance(imageDir);

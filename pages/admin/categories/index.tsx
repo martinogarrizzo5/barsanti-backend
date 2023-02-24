@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { BeatLoader } from "react-spinners";
 import { GetCategoryResponse as GetCategoriesResponse } from "../../api/categories";
 import { BiPlus } from "react-icons/bi";
@@ -11,6 +11,11 @@ import { useRouter } from "next/router";
 import RefetchingIndicator from "@/components/RefetchingIndicator";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import ErrorLoading from "@/components/ErrorLoading";
+import DeletePopup, { DeleteCategoryPopup } from "@/components/DeletePopup";
+import Toast, {
+  requestErrorToast,
+  requestSuccessToast,
+} from "@/components/Toast";
 
 function CategoriesPage() {
   const router = useRouter();
@@ -33,23 +38,18 @@ function CategoriesPage() {
   const deleteCategoryMutation = useMutation(
     (id: number) => axios.delete(`/api/categories/${id}`),
     {
-      onSuccess: () => {
+      onSuccess: (res) => {
         queryClient.invalidateQueries(["categories"]);
+        requestSuccessToast(res).fire();
+      },
+      onError: (err: AxiosError) => {
+        requestErrorToast(err).fire();
       },
     }
   );
 
   const showDeletePopup = (id: number) => {
-    Swal.fire({
-      icon: "warning",
-      title: "Sei sicuro di voler cancellare la categoria?",
-      text: 'Cancellare una categoria porta tuti i suoi elementi a essere considerati come "Generali" ',
-      confirmButtonText: "Si, cancella",
-      showCancelButton: true,
-      cancelButtonColor: "green",
-      cancelButtonText: "No, annulla",
-      confirmButtonColor: "red",
-      showLoaderOnConfirm: true,
+    DeleteCategoryPopup.fire({
       preConfirm: async () => await deleteCategoryMutation.mutateAsync(id),
     });
   };

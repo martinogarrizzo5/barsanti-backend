@@ -5,6 +5,8 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./layout/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
+    "./lib/**/*.{js,ts,jsx,tsx}",
+    "./lib/dropDownDefaultStyle.ts",
 
     // Or if using `src` directory:
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -12,6 +14,9 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        primaryLightest: "#b4e2f7",
+        primaryLighter: "#0EB7C7",
+        primaryLight: "#0E9DB7",
         primary: "#07789B",
         primaryDark: "#0A5C6F",
         primaryDarker: "#0A4C5F",

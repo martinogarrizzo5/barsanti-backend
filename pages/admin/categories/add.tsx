@@ -5,7 +5,7 @@ import CategoryForm, { CategoryFormData } from "@/components/CategoryForm";
 import axios, { AxiosError } from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
-import Toast from "@/components/Toast";
+import { requestErrorToast, requestSuccessToast } from "@/components/Toast";
 
 function AddCategoryPage() {
   const router = useRouter();
@@ -21,20 +21,13 @@ function AddCategoryPage() {
       return axios.post("/api/categories", formData);
     },
     {
-      onSuccess: () => {
+      onSuccess: (res) => {
         queryClient.invalidateQueries(["categories"]);
-        Toast.fire({
-          icon: "success",
-          title: "Categoria aggiunta con successo",
-        });
+        requestSuccessToast(res).fire();
         router.replace("/admin/categories");
       },
-      onError: (err) => {
-        const error = err as AxiosError;
-        Toast.fire({
-          icon: "error",
-          title: (error.response?.data as any).message,
-        });
+      onError: (err: AxiosError) => {
+        requestErrorToast(err).fire();
       },
     }
   );

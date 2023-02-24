@@ -36,6 +36,10 @@ input {
     @apply cursor-default bg-slate-300 hover:bg-slate-300 active:bg-slate-300;
   }
 
+  .btn-delete {
+    @apply rounded-full bg-red-500 text-white hover:bg-red-600 active:bg-red-700;
+  }
+
   .input {
     @apply rounded-md border-[1px] border-grayBorder bg-white placeholder:font-light placeholder:text-placeholder;
   }
@@ -57,6 +61,8 @@ input {
 :root {
   --background: #fafcfe;
   --primaryColor: #07789b;
+  --primaryColorLight: #e9f5f9;
+  --primaryColorDark: #055a6e;
 }
 
 /* Toast classes */
@@ -91,4 +97,26 @@ input {
 
 .colored-toast .swal2-html-container {
   color: white;
+}
+
+/* custom scroll-bar */
+
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #7c9294;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #687678;
 }
