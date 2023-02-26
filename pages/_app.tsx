@@ -23,7 +23,7 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const unsubscribeAuthObserver = onAuthStateChanged(
       firebaseAuth,
-      async (user) => {
+      async user => {
         if (!user) {
           return auth.clear();
         }
@@ -33,7 +33,7 @@ export default function App({ Component, pageProps }: AppProps) {
         axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 
         // on each request refresh token if necessary and attach it to the request
-        const interceptor = axios.interceptors.request.use(async (config) => {
+        const interceptor = axios.interceptors.request.use(async config => {
           const token = await user.getIdToken();
           axios.defaults.headers.common["Authorization"] = "Bearer " + token;
           return config;
@@ -96,7 +96,6 @@ export default function App({ Component, pageProps }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }

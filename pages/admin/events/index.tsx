@@ -7,19 +7,41 @@ import LoadingIndicator from "@/components/LoadingIndicator";
 import ErrorLoading from "@/components/ErrorLoading";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { CategoryDto } from "@/dto/categoryDto";
 import { GetCategoryResponse } from "@/pages/api/categories";
 import { dropDownStyles } from "@/lib/dropDownDefaultStyle";
+import { BsCalendar3 } from "react-icons/bs";
+import { DateRangePicker, Range } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+import useComponentVisible from "@/hooks/useComponentVisible";
+import RefetchingIndicator from "@/components/RefetchingIndicator";
 
-interface DatesRange {
-  startDate: Date;
-  endDate: Date;
-  key: string;
+interface CategoryOption {
+  id: number;
+  name: string;
 }
 
+const dropDownResetOption = {
+  id: 0,
+  name: "Tutte le categorie",
+};
+
 function EventsPage() {
-  const [datesRange, setDatesRange] = useState<DatesRange>();
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoryOption>(dropDownResetOption);
+  const [datesRange, setDatesRange] = useState<Range[]>([
+    {
+      key: "selectionName",
+      color: "var(--primaryColor)",
+      endDate: new Date(""),
+    },
+  ]);
   const router = useRouter();
+  const {
+    isComponentVisible: isCalendarShown,
+    setIsComponentVisible: showCalendar,
+    ref: calendarRef,
+  } = useComponentVisible(false);
 
   const {
     isLoading: areNewsLoading,
@@ -27,8 +49,15 @@ function EventsPage() {
     data: news,
     isRefetching: areNewsRefetching,
   } = useQuery({
-    queryKey: ["news"],
-    queryFn: data => axios.get("/api/news").then(res => res.data),
+    queryKey: [
+      "news",
+      selectedCategory?.id,
+      datesRange[0].startDate,
+      datesRange[0].endDate,
+    ],
+    queryFn: async config => {
+      return axios.get("/api/news").then(res => res.data);
+    },
     keepPreviousData: true,
   });
 
@@ -47,6 +76,8 @@ function EventsPage() {
   if (areNewsLoading || areCategoriesLoading) return <LoadingIndicator />;
 
   if (newsError || categoriesError) return <ErrorLoading />;
+
+  const dropDownOptions = [dropDownResetOption, ...categories];
 
   return (
     <>
@@ -74,14 +105,55 @@ function EventsPage() {
               autoComplete="off"
             />
             <Select
-              options={categories}
+              defaultValue={dropDownOptions[0]}
+              value={selectedCategory}
+              onChange={item => setSelectedCategory(item!)}
+              options={dropDownOptions}
               getOptionLabel={option => option.name}
               getOptionValue={option => option.id.toString()}
-              classNames={{ ...dropDownStyles, container: _ => "w-3/12" }}
+              classNames={{
+                ...dropDownStyles,
+                container: _ => "w-3/12 ",
+              }}
               placeholder="Seleziona categoria"
             />
+            <div
+              className="relative ml-auto w-3/12 cursor-pointer select-none"
+              ref={calendarRef}
+            >
+              <div
+                className="input flex items-center justify-between py-2 px-4 "
+                onClick={() => showCalendar(prevVal => !prevVal)}
+              >
+                {datesRange[0].startDate && datesRange[0].endDate ? (
+                  <span className="font-normal">
+                    {datesRange[0].startDate.toLocaleDateString()}-
+                    {datesRange[0].endDate.toLocaleDateString()}
+                  </span>
+                ) : (
+                  <span>Tutte</span>
+                )}
+                <BsCalendar3 />
+              </div>
+              {isCalendarShown && (
+                <div className="absolute top-0 right-0 translate-y-12 shadow-lg">
+                  <DateRangePicker
+                    onChange={item => {
+                      console.log(item);
+                      setDatesRange([item.selectionName]);
+                    }}
+                    editableDateInputs
+                    dateDisplayFormat="d MMM, yyyy"
+                    ranges={datesRange}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
+        {areCategoriesRefetching && areNewsRefetching && (
+          <RefetchingIndicator />
+        )}
       </main>
     </>
   );
