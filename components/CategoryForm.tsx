@@ -28,7 +28,7 @@ function CategoryForm(props: CategoryFormProps) {
     defaultValues: props.defaultData,
   });
 
-  const onSave = handleSubmit((data) => {
+  const onSave = handleSubmit(data => {
     if (props.isSubmitting || (props.edit && !isDirty)) return;
 
     props.onSubmit(data);
@@ -38,10 +38,7 @@ function CategoryForm(props: CategoryFormProps) {
     <form className="flex w-full flex-1 flex-col" onSubmit={onSave}>
       <div className="mb-4 flex w-full flex-1">
         <div className="mr-12 w-6/12">
-          <label
-            htmlFor="name"
-            className="mb-2 block text-sm font-medium text-gray-700"
-          >
+          <label htmlFor="name" className="label mb-2">
             Nome
           </label>
           <input
@@ -87,6 +84,7 @@ function CategoryForm(props: CategoryFormProps) {
       <div className="flex justify-end">
         {props.edit && (
           <button
+            type="button"
             className="btn btn-delete mx-4 flex items-center px-8 py-2 text-lg"
             onClick={props.onDelete}
           >

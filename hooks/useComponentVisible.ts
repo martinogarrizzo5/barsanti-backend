@@ -6,7 +6,6 @@ export default function useComponentVisible(initialIsVisible: boolean) {
   const ref = useRef<any>(null);
 
   const handleClickOutside = (event: Event) => {
-    console.log(ref.current.contains(event.target as Node));
     if (ref.current && !ref.current.contains(event.target as Node)) {
       setIsComponentVisible(false);
     }

@@ -77,17 +77,13 @@ async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
     return res.status(400).json({ message: "Categoria già esistente" });
   }
 
-  await prisma.category.update({
-    where: { id: categoryId },
-    data: categoryData,
-  });
-
   // save the image if present
+  let newImageName = null;
   if (req.files && req.files.image instanceof File) {
     const categoryImage = req.files.image as File;
 
     const imageExtension = path.extname(categoryImage.originalFilename ?? "");
-    const oldPath = categoryImage.filepath;
+    const tempPath = categoryImage.filepath;
     const uploadDir = await setupUploadDir();
     if (uploadDir === null)
       return res.status(500).json({ message: "Impossibile salvare il file" });
@@ -98,10 +94,25 @@ async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
       categoryId.toString()
     );
     await ensureDirExistance(imageDir);
-    const newPath = path.join(imageDir, "image" + imageExtension);
+    newImageName = "image" + imageExtension;
+    const newPath = path.join(imageDir, newImageName);
 
-    await fs.rename(oldPath, newPath);
+    // delete the old image if the extension is different
+    if (imageExtension !== path.extname(existingCategory?.imageName ?? "")) {
+      await fs.rm(path.join(imageDir, existingCategory?.imageName ?? ""));
+    }
+
+    await fs.rename(tempPath, newPath);
   }
+
+  // update image name if it was changed or if it has different extension
+  const data: any = { ...categoryData };
+  if (newImageName !== null) data.imageName = newImageName;
+
+  await prisma.category.update({
+    where: { id: categoryId },
+    data: data,
+  });
 
   return res.json({ message: "Categoria modificata con successo" });
 }

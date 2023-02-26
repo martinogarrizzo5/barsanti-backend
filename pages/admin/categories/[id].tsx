@@ -29,7 +29,7 @@ function EditCategoryPage() {
   } = useQuery({
     queryKey: ["categories", id],
     queryFn: () =>
-      axios.get<CategoryDto>(`/api/categories/${id}`).then((res) => res.data),
+      axios.get<CategoryDto>(`/api/categories/${id}`).then(res => res.data),
     onError: (err: AxiosError) => {
       // If the category doesn't exist, redirect to the categories page
       if (err.response?.status === 400 || err.response?.status === 404) {
@@ -50,19 +50,13 @@ function EditCategoryPage() {
       return axios.put(`/api/categories/${id}`, formData);
     },
     {
-      onSuccess: () => {
+      onSuccess: res => {
         queryClient.invalidateQueries(["categories"]);
-        Toast.fire({
-          icon: "success",
-          title: "Categoria modificata con successo",
-        });
+        requestSuccessToast(res).fire();
         router.replace("/admin/categories");
       },
       onError: (err: AxiosError) => {
-        Toast.fire({
-          icon: "error",
-          title: (err.response?.data as any).message,
-        });
+        requestErrorToast(err).fire();
       },
     }
   );
@@ -70,7 +64,7 @@ function EditCategoryPage() {
   const deleteCategoryMutation = useMutation(
     (id: number) => axios.delete(`/api/categories/${id}`),
     {
-      onSuccess: (res) => {
+      onSuccess: res => {
         queryClient.invalidateQueries(["categories"]);
         requestSuccessToast(res).fire();
         router.replace("/admin/categories");
@@ -105,7 +99,7 @@ function EditCategoryPage() {
         </div>
         <CategoryForm
           edit
-          onSubmit={(data) => editCategory.mutate(data)}
+          onSubmit={data => editCategory.mutate(data)}
           isSubmitting={editCategory.isLoading}
           defaultData={{ image: category.imageUrl, name: category.name }}
           onDelete={deleteCategory}

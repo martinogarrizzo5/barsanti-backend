@@ -31,7 +31,7 @@ function EventsPage() {
     useState<CategoryOption>(dropDownResetOption);
   const [datesRange, setDatesRange] = useState<Range[]>([
     {
-      key: "selectionName",
+      key: "selectionDates",
       color: "var(--primaryColor)",
       endDate: new Date(""),
     },
@@ -100,7 +100,7 @@ function EventsPage() {
             <input
               name="search"
               type="text"
-              className="input mr-12 w-4/12 px-4 py-2"
+              className="input mr-8 w-4/12 px-4 py-2 xl:mr-12"
               placeholder="Cerca Evento"
               autoComplete="off"
             />
@@ -118,11 +118,11 @@ function EventsPage() {
               placeholder="Seleziona categoria"
             />
             <div
-              className="relative ml-auto w-3/12 cursor-pointer select-none"
+              className="relative ml-auto w-4/12 cursor-pointer select-none xl:w-3/12"
               ref={calendarRef}
             >
               <div
-                className="input flex items-center justify-between py-2 px-4 "
+                className="input flex h-full items-center justify-between py-2 px-4"
                 onClick={() => showCalendar(prevVal => !prevVal)}
               >
                 {datesRange[0].startDate && datesRange[0].endDate ? (
@@ -138,10 +138,7 @@ function EventsPage() {
               {isCalendarShown && (
                 <div className="absolute top-0 right-0 translate-y-12 shadow-lg">
                   <DateRangePicker
-                    onChange={item => {
-                      console.log(item);
-                      setDatesRange([item.selectionName]);
-                    }}
+                    onChange={item => setDatesRange([item.selectionDates])}
                     editableDateInputs
                     dateDisplayFormat="d MMM, yyyy"
                     ranges={datesRange}
