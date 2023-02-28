@@ -1,15 +1,17 @@
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Select from "react-select";
 import { dropDownStyles } from "@/lib/dropDownDefaultStyle";
-import { BsCalendar3 } from "react-icons/bs";
+import { BsCalendar3, BsCheck } from "react-icons/bs";
 import { DateRangePicker } from "react-date-range";
+import Checkbox from "./Checkbox";
 
 export type EventFormData = {
   title: string;
   description: string;
   image: File | string | null;
-  category: string;
+  highlited: boolean;
+  category: string | null; // TODO: change type
 };
 
 function EventForm() {
@@ -18,7 +20,11 @@ function EventForm() {
     handleSubmit,
     control,
     formState: { errors, isDirty },
-  } = useForm<EventFormData>({});
+  } = useForm<EventFormData>({
+    defaultValues: {
+      highlited: false,
+    },
+  });
 
   const onSave = handleSubmit(data => {
     console.log(data);
@@ -27,7 +33,7 @@ function EventForm() {
   return (
     <div>
       <form onSubmit={onSave}>
-        <div className="mb-10 flex items-center">
+        <div className="mb-10 flex items-end">
           <div className="flex-[4]">
             <label className="label mb-2" htmlFor="title">
               Titolo
@@ -40,10 +46,13 @@ function EventForm() {
               {...register("title")}
             />
           </div>
-          <div className="ml-10 flex h-0 flex-[2] cursor-pointer">
-            <div className="input mr-3 p-3"></div>
-            <span>In evidenza</span>
-          </div>
+          <Controller
+            name="highlited"
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <Checkbox label="In evidenza" value={value} onChange={onChange} />
+            )}
+          />
         </div>
         <div className="flex items-center">
           <div className="w-5/12">
@@ -65,6 +74,16 @@ function EventForm() {
               <BsCalendar3 />
             </div>
           </div>
+        </div>
+        <div className="mt-12 flex w-full justify-end">
+          <button
+            onClick={onSave}
+            type="submit"
+            className="btn flex items-center self-end px-8 py-2 text-lg"
+          >
+            <BsCheck className="mr-2 text-[1.75rem]" />
+            <span>Salva</span>
+          </button>
         </div>
       </form>
     </div>
