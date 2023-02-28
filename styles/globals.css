@@ -24,6 +24,12 @@ input {
   body {
     @apply bg-background;
     font-family: "Poppins";
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #__next {
+    height: 100%;
   }
 }
 
@@ -40,15 +46,14 @@ input {
     @apply rounded-full bg-red-500 text-white hover:bg-red-600 active:bg-red-700;
   }
 
+  .card {
+    @apply rounded-md border-[1px] border-grayBorder bg-white;
+  }
   .input {
     @apply rounded-md border-[1px] border-grayBorder bg-white placeholder:font-light placeholder:text-placeholder;
   }
   .gridRow {
     @apply overflow-hidden border-[1px] border-b-0 border-grayBorder bg-white first:rounded-t-md last:rounded-b-md last:border-b-[1px] hover:bg-controlHoverBackground active:bg-controlActiveBackground;
-  }
-
-  .main {
-    @apply mx-auto flex w-full max-w-6xl flex-col py-16 px-8 lg:px-12 xl:p-16;
   }
 }
 

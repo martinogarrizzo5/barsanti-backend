@@ -15,6 +15,7 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import useComponentVisible from "@/hooks/useComponentVisible";
 import RefetchingIndicator from "@/components/RefetchingIndicator";
+import Main from "@/components/Main";
 
 interface CategoryOption {
   id: number;
@@ -24,6 +25,11 @@ interface CategoryOption {
 const dropDownResetOption = {
   id: 0,
   name: "Tutte le categorie",
+};
+
+const dropDownHighlightOption = {
+  id: -1,
+  name: "In evidenza",
 };
 
 function EventsPage() {
@@ -77,14 +83,18 @@ function EventsPage() {
 
   if (newsError || categoriesError) return <ErrorLoading />;
 
-  const dropDownOptions = [dropDownResetOption, ...categories];
+  const dropDownOptions = [
+    dropDownResetOption,
+    dropDownHighlightOption,
+    ...categories,
+  ];
 
   return (
     <>
       <Head>
         <title>Eventi</title>
       </Head>
-      <main className="main">
+      <Main>
         <div className="mb-12 flex justify-between">
           <h1 className="title">Eventi</h1>
           <button
@@ -151,7 +161,7 @@ function EventsPage() {
         {areCategoriesRefetching && areNewsRefetching && (
           <RefetchingIndicator />
         )}
-      </main>
+      </Main>
     </>
   );
 }

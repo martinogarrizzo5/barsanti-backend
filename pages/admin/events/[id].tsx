@@ -1,4 +1,6 @@
 import BackButton from "@/components/BackButton";
+import EventForm from "@/components/EventForm";
+import Main from "@/components/Main";
 import Head from "next/head";
 import React from "react";
 
@@ -8,12 +10,13 @@ function ModifyEventPage() {
       <Head>
         <title>Modifica evento</title>
       </Head>
-      <main className="main">
+      <Main>
         <div className="mb-12 flex ">
           <BackButton />
           <h1 className="title">Modifica Evento</h1>
         </div>
-      </main>
+        <EventForm />
+      </Main>
     </>
   );
 }

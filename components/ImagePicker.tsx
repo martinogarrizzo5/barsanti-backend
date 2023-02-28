@@ -2,15 +2,17 @@ import classNames from "classnames";
 import Image from "next/image";
 import React, { useRef } from "react";
 import { BiImage } from "react-icons/bi";
+import { MdUpload } from "react-icons/md";
 
 interface IImagePickerProps {
   className?: string;
-  onImagesChange: (newPhotos: FileList | null) => void;
+  onFilesChange: (newFiles: FileList | null) => void;
   multipleFiles?: boolean;
-  onImageDelete?: (index: number) => void;
+  accept?: string;
+  showImageIcon?: boolean;
 }
 
-function ImagePicker(props: IImagePickerProps) {
+function FileInput(props: IImagePickerProps) {
   const fileInput = useRef<HTMLInputElement>(null);
 
   const handleClick = () => {
@@ -25,17 +27,21 @@ function ImagePicker(props: IImagePickerProps) {
       <input
         ref={fileInput}
         type="file"
-        accept="image/*"
+        accept={props.accept}
         multiple={props.multipleFiles}
-        onChange={(event) => props.onImagesChange(event.target.files)}
+        onChange={event => props.onFilesChange(event.target.files)}
         className="hidden"
       />
       <button
         type="button"
         onClick={handleClick}
-        className="btn flex w-full items-center justify-center rounded-t-none rounded-b-xl px-4 py-1 text-base"
+        className={classNames("flex items-center", props.className)}
       >
-        <BiImage className="mr-2 text-[1.5rem]" />
+        {props.showImageIcon ? (
+          <BiImage className="mr-2 text-[1.5rem]" />
+        ) : (
+          <MdUpload className="mr-1 text-[1.4rem]" />
+        )}
         <span>Carica</span>
       </button>
     </div>
@@ -72,11 +78,16 @@ export function ImagePickerWithPreview(props: IImagePickerWithPreviewProps) {
           />
         )}
       </div>
-      <ImagePicker
-        onImagesChange={(photos) => {
+      <FileInput
+        onFilesChange={photos => {
           if (!photos) return;
           props.onChange(photos[0]);
         }}
+        accept="image/*"
+        showImageIcon
+        className={
+          "btn flex w-full items-center justify-center rounded-t-none rounded-b-xl px-4 py-1 text-base"
+        }
       />
       {props.error && (
         <span className="mt-2 block text-red-600">{props.error}</span>
@@ -85,4 +96,4 @@ export function ImagePickerWithPreview(props: IImagePickerWithPreviewProps) {
   );
 }
 
-export default ImagePicker;
+export default FileInput;

@@ -1,5 +1,7 @@
 import classNames from "classnames";
 import React, { useState } from "react";
+import * as Label from "@radix-ui/react-label";
+import { BsCheck } from "react-icons/bs";
 
 interface ICheckboxProps {
   label: string;
@@ -10,15 +12,18 @@ interface ICheckboxProps {
 function Checkbox(props: ICheckboxProps) {
   return (
     <div
-      className="ml-10 mb-2 flex flex-[2] cursor-pointer select-none"
+      className="flex w-max cursor-pointer items-center"
       onClick={() => props.onChange(!props.value)}
     >
       <div
-        className={classNames("input mr-3 p-3", props.value && "bg-primary")}
+        className={classNames(
+          "input mr-3 flex h-6 w-6 items-center justify-center text-3xl",
+          props.value && "bg-primary text-white"
+        )}
       >
-        {/* TODO: add icon */}
+        {props.value && <BsCheck />}
       </div>
-      <span>{props.label}</span>
+      <Label.Root className="cursor-pointer">{props.label}</Label.Root>
     </div>
   );
 }

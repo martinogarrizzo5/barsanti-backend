@@ -16,6 +16,7 @@ import Toast, {
   requestErrorToast,
   requestSuccessToast,
 } from "@/components/Toast";
+import Main from "@/components/Main";
 
 function CategoriesPage() {
   const router = useRouter();
@@ -28,17 +29,15 @@ function CategoriesPage() {
     isRefetching,
   } = useQuery({
     queryKey: ["categories"],
-    queryFn: (data) =>
-      axios
-        .get<GetCategoriesResponse>("/api/categories")
-        .then((res) => res.data),
+    queryFn: data =>
+      axios.get<GetCategoriesResponse>("/api/categories").then(res => res.data),
     keepPreviousData: true,
   });
 
   const deleteCategoryMutation = useMutation(
     (id: number) => axios.delete(`/api/categories/${id}`),
     {
-      onSuccess: (res) => {
+      onSuccess: res => {
         queryClient.invalidateQueries(["categories"]);
         requestSuccessToast(res).fire();
       },
@@ -63,7 +62,7 @@ function CategoriesPage() {
       <Head>
         <title>Categories</title>
       </Head>
-      <main className="main">
+      <Main>
         <div className="mb-12 flex justify-between">
           <h1 className="title">Categorie</h1>
           <button
@@ -78,7 +77,7 @@ function CategoriesPage() {
           {categories.length === 0 && (
             <div className="mt-4 w-full text-lg">Nessuna categoria trovata</div>
           )}
-          {categories.map((category) => (
+          {categories.map(category => (
             <div
               key={`category-${category.id}`}
               className="gridRow flex cursor-pointer items-center"
@@ -103,7 +102,7 @@ function CategoriesPage() {
           ))}
         </div>
         {isRefetching && <RefetchingIndicator />}
-      </main>
+      </Main>
     </>
   );
 }

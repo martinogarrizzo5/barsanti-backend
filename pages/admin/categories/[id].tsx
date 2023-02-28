@@ -15,6 +15,7 @@ import Toast, {
 } from "@/components/Toast";
 import DeletePopup, { DeleteCategoryPopup } from "@/components/DeletePopup";
 import { CategoryDto } from "@/dto/categoryDto";
+import Main from "@/components/Main";
 
 function EditCategoryPage() {
   const queryClient = useQueryClient();
@@ -92,7 +93,7 @@ function EditCategoryPage() {
       <Head>
         <title>Modifica Categoria</title>
       </Head>
-      <main className="main">
+      <Main>
         <div className="mb-12 flex">
           <BackButton />
           <h1 className="title">Modifica Categoria</h1>
@@ -105,7 +106,7 @@ function EditCategoryPage() {
           onDelete={deleteCategory}
         />
         {isRefetching && <RefetchingIndicator />}
-      </main>
+      </Main>
     </>
   );
 }

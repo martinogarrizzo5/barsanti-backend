@@ -1,3 +1,4 @@
+import Main from "@/components/Main";
 import Head from "next/head";
 import React from "react";
 
@@ -7,7 +8,7 @@ function UsersPage() {
       <Head>
         <title>Utenti</title>
       </Head>
-      <div></div>
+      <Main></Main>
     </>
   );
 }

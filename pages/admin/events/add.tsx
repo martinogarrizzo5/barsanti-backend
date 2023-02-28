@@ -1,7 +1,11 @@
 import BackButton from "@/components/BackButton";
-import EventForm from "@/components/EventForm";
+import Main from "@/components/Main";
+import dynamic from "next/dynamic";
 import Head from "next/head";
 import React from "react";
+const EventForm = dynamic(() => import("@/components/EventForm"), {
+  ssr: false,
+});
 
 function AddEventPage() {
   return (
@@ -9,13 +13,13 @@ function AddEventPage() {
       <Head>
         <title>Aggiungi evento</title>
       </Head>
-      <main className="main">
+      <Main>
         <div className="mb-12 flex">
           <BackButton />
           <h1 className="title">Aggiungi Evento</h1>
         </div>
         <EventForm />
-      </main>
+      </Main>
     </>
   );
 }

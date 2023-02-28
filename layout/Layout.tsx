@@ -12,7 +12,7 @@ function Layout({ children }: LayoutProps) {
   const router = useRouter();
 
   return (
-    <div className="flex">
+    <div className="flex h-full">
       {router.pathname.startsWith("/admin") && <SideBar />}
       {children}
     </div>
