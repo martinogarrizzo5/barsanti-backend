@@ -13,6 +13,7 @@ import setupUploadDir, { ensureDirExistance } from "@/lib/setupUploadDir";
 import fs from "fs/promises";
 import path from "path";
 import { categoryImageDir } from "@/lib/uploadFolders";
+import { auth, editorPrivilege } from "@/middlewares/auth";
 
 export const config = {
   api: {
@@ -22,7 +23,7 @@ export const config = {
 
 export default apiHandler()
   .get(getCategories)
-  .post(parseMultipart, allowOnlyImages, createCategory);
+  .post(auth, editorPrivilege, parseMultipart, allowOnlyImages, createCategory);
 
 export type GetCategoryResponse = (Category & { _count: { news: number } })[];
 async function getCategories(
@@ -72,12 +73,13 @@ async function createCategory(req: MultipartAuthRequest, res: NextApiResponse) {
   }
 
   const imageExtension = path.extname(categoryImage.originalFilename ?? "");
-  const oldPath = categoryImage.filepath;
+  const tempImagePath = categoryImage.filepath;
+  const newFileName = "image" + imageExtension;
 
   const category = await prisma.category.create({
     data: {
       name: categoryData.name,
-      imageName: "image" + imageExtension,
+      imageName: newFileName,
     },
   });
 
@@ -96,9 +98,9 @@ async function createCategory(req: MultipartAuthRequest, res: NextApiResponse) {
 
     // check existance of the directory
     await ensureDirExistance(imageDir);
-    await fs.rename(oldPath, newPath);
+    await fs.rename(tempImagePath, newPath);
 
-    return res.json({ message: "Categoria creata con successo" });
+    return res.status(201).json({ message: "Categoria creata con successo" });
   } catch (err) {
     // rollback the category creation
     await prisma.category.delete({

@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
     request.nextUrl.pathname == "/admin"
   ) {
     const url = request.nextUrl.clone();
-    url.pathname = "/admin/events";
+    url.pathname = "/admin/news";
 
     return NextResponse.redirect(url);
   }

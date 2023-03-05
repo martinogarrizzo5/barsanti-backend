@@ -16,6 +16,10 @@ import "react-date-range/dist/theme/default.css";
 import useComponentVisible from "@/hooks/useComponentVisible";
 import RefetchingIndicator from "@/components/RefetchingIndicator";
 import Main from "@/components/Main";
+import { ExtendedNews, NewsDto } from "@/dto/newsDto";
+import { AiOutlineDelete } from "react-icons/ai";
+import useDebounce from "@/hooks/useDebounce";
+import { isValidDate } from "@/lib/dates";
 
 interface CategoryOption {
   id: number;
@@ -33,16 +37,16 @@ const dropDownHighlightOption = {
 };
 
 function EventsPage() {
+  const router = useRouter();
+
+  const [searchedNews, setSearchedNews] = useState("");
+  const debouncedNews = useDebounce(searchedNews);
   const [selectedCategory, setSelectedCategory] =
     useState<CategoryOption>(dropDownResetOption);
   const [datesRange, setDatesRange] = useState<Range[]>([
-    {
-      key: "selectionDates",
-      color: "var(--primaryColor)",
-      endDate: new Date(""),
-    },
+    { key: "selectionDates", endDate: new Date("") },
   ]);
-  const router = useRouter();
+
   const {
     isComponentVisible: isCalendarShown,
     setIsComponentVisible: showCalendar,
@@ -60,9 +64,33 @@ function EventsPage() {
       selectedCategory?.id,
       datesRange[0].startDate,
       datesRange[0].endDate,
+      debouncedNews,
     ],
     queryFn: async config => {
-      return axios.get("/api/news").then(res => res.data);
+      let highlighted = false;
+      let category = config.queryKey[1] || undefined;
+
+      if (selectedCategory?.id === -1) {
+        highlighted = true;
+        category = undefined;
+      } else if (selectedCategory?.id === 0) {
+        category = undefined;
+      }
+
+      const startDate = config.queryKey[2] as Date;
+      const endDate = config.queryKey[3] as Date;
+
+      return axios
+        .get<NewsDto[]>("/api/news", {
+          params: {
+            category: category,
+            search: config.queryKey[4] || undefined,
+            startDate: isValidDate(startDate) ? startDate : undefined,
+            endDate: isValidDate(endDate) ? endDate : undefined,
+            highlighted: highlighted,
+          },
+        })
+        .then(res => res.data);
     },
     keepPreviousData: true,
   });
@@ -99,7 +127,7 @@ function EventsPage() {
           <h1 className="title">Eventi</h1>
           <button
             className="btn flex items-center px-6 py-2 text-lg"
-            onClick={() => router.push("/admin/events/add")}
+            onClick={() => router.push("/admin/news/add")}
           >
             <BiPlus className="mr-2 text-[24px]" />
             <span>Aggiungi</span>
@@ -113,6 +141,8 @@ function EventsPage() {
               className="input mr-8 w-4/12 px-4 py-2 xl:mr-12"
               placeholder="Cerca Evento"
               autoComplete="off"
+              value={searchedNews}
+              onChange={e => setSearchedNews(e.target.value)}
             />
             <Select
               defaultValue={dropDownOptions[0]}
@@ -146,7 +176,7 @@ function EventsPage() {
                 <BsCalendar3 />
               </div>
               {isCalendarShown && (
-                <div className="absolute top-0 right-0 translate-y-12 shadow-lg">
+                <div className="absolute bottom-0 right-0 z-30 translate-y-[102%] shadow-lg">
                   <DateRangePicker
                     onChange={item => setDatesRange([item.selectionDates])}
                     editableDateInputs
@@ -158,9 +188,33 @@ function EventsPage() {
             </div>
           </div>
         </div>
-        {areCategoriesRefetching && areNewsRefetching && (
-          <RefetchingIndicator />
-        )}
+        <div className="mt-10">
+          {news.map(item => (
+            <div
+              key={`news-${item.id}`}
+              className="gridRow flex cursor-pointer items-center"
+            >
+              <div
+                className="flex flex-1 border-r-2 border-grayBorder py-5 px-8 "
+                onClick={() => router.push(`/admin/news/${item.id}`)}
+              >
+                <h2 className="mr-4 w-9/12 font-medium">{item.title}</h2>
+                <h3 className="flex w-3/12 items-center">
+                  <BsCalendar3 className="mr-2 text-lg text-primary" />
+                  <span>{new Date(item.date).toLocaleDateString()}</span>
+                </h3>
+              </div>
+              <button
+                className="self-stretch p-4 text-red-600 duration-200 hover:bg-red-600 hover:text-white"
+                onClick={() => {}}
+              >
+                <AiOutlineDelete className="text-[24px]" />
+              </button>
+            </div>
+          ))}
+        </div>
+        {areCategoriesRefetching ||
+          (areNewsRefetching && <RefetchingIndicator />)}
       </Main>
     </>
   );

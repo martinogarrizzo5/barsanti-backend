@@ -28,7 +28,7 @@ export default apiHandler()
   .delete(auth, editorPrivilege, deleteCategory);
 
 const getCategorySchema = z.object({
-  id: numericString,
+  id: numericString(z.number().int().nonnegative()),
 });
 
 async function getCategory(req: NextApiRequest, res: NextApiResponse) {
@@ -51,7 +51,7 @@ const editCategorySchema = z.object({
   name: z.string().min(1),
 });
 const editCategoryQuerySchema = z.object({
-  id: numericString,
+  id: numericString(z.number().int().nonnegative()),
 });
 async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
   const result = editCategorySchema.safeParse(req.body);
@@ -118,7 +118,7 @@ async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
 }
 
 const deleteCategorySchema = z.object({
-  id: numericString,
+  id: numericString(z.number().int().nonnegative()),
 });
 async function deleteCategory(req: NextApiRequest, res: NextApiResponse) {
   const results = deleteCategorySchema.safeParse(req.query);

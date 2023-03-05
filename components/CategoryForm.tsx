@@ -36,7 +36,7 @@ function CategoryForm(props: CategoryFormProps) {
 
   return (
     <form className="flex w-full flex-1 flex-col" onSubmit={onSave}>
-      <div className="mb-4 flex w-full flex-1">
+      <div className="mb-12 flex w-full flex-1">
         <div className="mr-12 w-6/12">
           <label htmlFor="name" className="label mb-2">
             Nome

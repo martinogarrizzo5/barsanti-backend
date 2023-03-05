@@ -3,25 +3,52 @@ import apiHandler from "@/lib/apiHandler";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { auth, editorPrivilege } from "@/middlewares/auth";
+import {
+  MultipartAuthRequest,
+  parseMultipart,
+} from "@/middlewares/multipart-parser";
+import { numericString } from "@/lib/zodExtensions";
+import path from "path";
+import { File as FormFile } from "formidable";
+import setupUploadDir, { ensureDirExistance } from "@/lib/setupUploadDir";
+import { newsImageDir, newsFilesDir } from "@/lib/uploadFolders";
+import fs from "fs/promises";
+import { fromZodError } from "zod-validation-error";
+import { newsDto as formatNews } from "@/dto/newsDto";
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export default apiHandler()
   .get(getNews)
-  .post(auth, editorPrivilege, createNews);
+  .post(auth, editorPrivilege, parseMultipart, createNews);
 
 const getNewsSchema = z.object({
-  page: z.number().optional().default(0),
+  cursor: numericString(z.number().optional()), // id of news (used for infine scroll in mobile app)
+  page: numericString(z.number().optional().default(0)),
   search: z.string().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  category: numericString(z.number().int().nonnegative().optional()),
+  highlighted: z.enum(["true", "false"]).optional(),
 });
 async function getNews(req: NextApiRequest, res: NextApiResponse) {
   const result = getNewsSchema.safeParse(req.query);
   if (!result.success) {
-    return res.status(400).json({ error: "Invalid parameters" });
+    return res.status(400).json({ error: fromZodError(result.error).message });
   }
 
-  const { page, search } = result.data;
+  const { page, search, startDate, endDate, category, highlighted } =
+    result.data;
   const resultsPerPage = 15;
 
   const news = await prisma.news.findMany({
+    orderBy: {
+      date: "desc",
+    },
     where: {
       title: {
         search: search,
@@ -29,13 +56,143 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
       description: {
         search: search,
       },
+      categoryId: category,
+      date: {
+        gte: startDate,
+        lte: endDate,
+      },
+      highlighted: highlighted === "true" ? true : undefined,
+    },
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      files: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
     skip: page * resultsPerPage,
     take: resultsPerPage,
   });
 
-  return res.json(news);
+  return res.json(news.map(formatNews));
 }
 
-const createNewsSchema = z.object({});
-async function createNews(req: NextApiRequest, res: NextApiResponse) {}
+const createNewsSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().min(1),
+  category: numericString(z.number().int().nonnegative()),
+  highlighted: z.enum(["true", "false"]),
+  date: z.string(), // as date
+});
+async function createNews(req: MultipartAuthRequest, res: NextApiResponse) {
+  // data validation
+  const result = createNewsSchema.safeParse(req.body);
+  const rawImage = req.files?.image;
+  const rawFiles = req.files?.newFiles;
+  if (!rawImage) return res.status(400).json({ message: "Immagine mancante" });
+  if (!result.success) {
+    return res
+      .status(400)
+      .json({ message: fromZodError(result.error).message });
+  }
+  const image = rawImage as FormFile;
+  if (!image.mimetype?.startsWith("image/"))
+    return res.status(400).json({ message: "Immagine non valida" });
+  if (!image.originalFilename)
+    return res.status(400).json({ message: "Nome immagine mancante" });
+
+  const { title, description, category, highlighted, date } = result.data;
+  const formattedDate = new Date(date);
+
+  // get image base info
+  const imageExt = path.extname(image.originalFilename);
+  const tempImagePath = image.filepath;
+  const imageFileName = "image" + imageExt;
+
+  // get files base info
+  let files = rawFiles;
+  if (!files) files = [];
+  if (!Array.isArray(files)) {
+    files = [files];
+  }
+  const tempFilesPath = files.map(file => file.filepath);
+  const filesNames = files.map(file => {
+    if (!file.originalFilename) throw new Error("Nome file mancante");
+    return file.originalFilename;
+  });
+
+  const news = await prisma.news.create({
+    data: {
+      title,
+      description,
+      category: {
+        connect: {
+          id: category,
+        },
+      },
+      highlighted: highlighted === "true",
+      date: formattedDate,
+      author: {
+        connect: {
+          id: req.user!.id,
+        },
+      },
+      imageName: imageFileName,
+      files: {
+        create: filesNames.map(fileName => ({
+          name: fileName,
+          user: {
+            connect: {
+              id: req.user!.id,
+            },
+          },
+        })),
+      },
+    },
+  });
+
+  try {
+    const uploadDir = await setupUploadDir();
+    if (uploadDir === null) {
+      return res.status(500).json({ message: "Impossibile salvare il file" });
+    }
+
+    const imageDir = path.join(uploadDir, newsImageDir, news.id.toString());
+    const filesDir = path.join(uploadDir, newsFilesDir, news.id.toString());
+
+    // handle files save
+    await ensureDirExistance(filesDir);
+    await Promise.all(
+      filesNames.map((fileName, i) => {
+        const filePath = path.join(filesDir, fileName);
+        return fs.rename(tempFilesPath[i], filePath);
+      })
+    );
+
+    // save image
+    await ensureDirExistance(imageDir);
+    const imagePath = path.join(imageDir, imageFileName);
+    await fs.rename(tempImagePath, imagePath);
+
+    return res.status(201).json({ message: "Notizia creata con successo" });
+  } catch {
+    // TODO: delete files uploaded
+
+    // delete news if image or files upload fails
+    await prisma.news.delete({
+      where: {
+        id: news.id,
+      },
+    });
+    return res.status(500).json({ message: "Impossibile salvare il file" });
+  }
+
+  // return res.status(201).json({ message: "Notizia creata con successo" });
+}

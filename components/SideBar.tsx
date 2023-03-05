@@ -16,7 +16,7 @@ function SideBar() {
   const router = useRouter();
 
   const links = [
-    { name: "Eventi", icon: BsCalendar3, path: "/admin/events" },
+    { name: "Eventi", icon: BsCalendar3, path: "/admin/news" },
     { name: "Categorie", icon: BiCategory, path: "/admin/categories" },
     { name: "Utenti", icon: BiUser, path: "/admin/users" },
     { name: "Impostazioni", icon: FiSettings, path: "/admin/settings" },

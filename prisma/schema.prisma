@@ -11,7 +11,8 @@ datasource db {
 }
 
 model User {
-  id        String   @id // associated with firebase auth id
+  id        Int      @id @default(autoincrement())
+  googleId  String   @unique
   name      String
   email     String   @unique
   role      Role     @default(STUDENT)
@@ -35,9 +36,9 @@ model News {
   imageName   String
   highlighted Boolean   @default(false)
   author      User      @relation(fields: [authorId], references: [id])
-  authorId    String
+  authorId    Int
   files       File[]
-  Category    Category? @relation(fields: [categoryId], references: [id])
+  category    Category? @relation(fields: [categoryId], references: [id])
   categoryId  Int?
   date        DateTime  @default(now())
   createdAt   DateTime  @default(now())
@@ -58,10 +59,9 @@ model Category {
 
 model File {
   id        Int      @id @default(autoincrement())
-  name      String // name we want to display in app
-  path      String
+  name      String
   user      User     @relation(fields: [userId], references: [id])
-  userId    String
+  userId    Int
   news      News     @relation(fields: [newsId], references: [id])
   newsId    Int
   createdAt DateTime @default(now())

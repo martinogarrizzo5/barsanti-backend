@@ -129,3 +129,9 @@ input {
 ::-webkit-scrollbar-thumb:hover {
   background: #687678;
 }
+
+/* quill editor style necessary to size it properly */
+.ql-editor {
+  height: 280px !important;
+  padding-bottom: 2rem;
+}
