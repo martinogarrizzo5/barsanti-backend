@@ -20,6 +20,7 @@ import { ExtendedNews, NewsDto } from "@/dto/newsDto";
 import { AiOutlineDelete } from "react-icons/ai";
 import useDebounce from "@/hooks/useDebounce";
 import { isValidDate } from "@/lib/dates";
+import { deleteNewsPopup } from "@/components/DeletePopup";
 
 interface CategoryOption {
   id: number;
@@ -106,6 +107,12 @@ function EventsPage() {
       axios.get<GetCategoryResponse>("/api/categories").then(res => res.data),
     keepPreviousData: true,
   });
+
+  const showDeletePopup = (id: number) => {
+    deleteNewsPopup.fire({
+      preConfirm: async () => {},
+    });
+  };
 
   if (areNewsLoading || areCategoriesLoading) return <LoadingIndicator />;
 
@@ -206,7 +213,7 @@ function EventsPage() {
               </div>
               <button
                 className="self-stretch p-4 text-red-600 duration-200 hover:bg-red-600 hover:text-white"
-                onClick={() => {}}
+                onClick={() => showDeletePopup(item.id)}
               >
                 <AiOutlineDelete className="text-[24px]" />
               </button>

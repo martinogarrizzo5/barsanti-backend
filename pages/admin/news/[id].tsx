@@ -1,9 +1,11 @@
 import BackButton from "@/components/BackButton";
+import { deleteNewsPopup } from "@/components/DeletePopup";
 import ErrorLoading from "@/components/ErrorLoading";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import Main from "@/components/Main";
+import { requestErrorToast, requestSuccessToast } from "@/components/Toast";
 import { NewsDto } from "@/dto/newsDto";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import dynamic from "next/dynamic";
 import Head from "next/head";
@@ -15,6 +17,7 @@ const EventForm = dynamic(() => import("@/components/EventForm"), {
 });
 
 function ModifyEventPage() {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const { id } = router.query;
 
@@ -34,6 +37,28 @@ function ModifyEventPage() {
     },
   });
 
+  const deleteNewsMutation = useMutation(
+    (id: number) => axios.delete(`/api/news/${id}`),
+    {
+      onSuccess: res => {
+        queryClient.invalidateQueries(["news"]);
+        requestSuccessToast(res).fire();
+        router.replace("/admin/news");
+      },
+      onError: (err: AxiosError) => {
+        requestErrorToast(err).fire();
+      },
+    }
+  );
+
+  const deleteNews = () => {
+    if (!id || Array.isArray(id)) return;
+
+    deleteNewsPopup.fire({
+      preConfirm: () => deleteNewsMutation.mutateAsync(+id),
+    });
+  };
+
   if (isLoading) return <LoadingIndicator />;
 
   if (isError) return <ErrorLoading />;
@@ -48,7 +73,12 @@ function ModifyEventPage() {
           <BackButton />
           <h1 className="title">Modifica Evento</h1>
         </div>
-        <EventForm onSubmit={() => {}} defaultData={event} edit />
+        <EventForm
+          onSubmit={() => {}}
+          defaultData={event}
+          edit
+          onDelete={deleteNews}
+        />
       </Main>
     </>
   );

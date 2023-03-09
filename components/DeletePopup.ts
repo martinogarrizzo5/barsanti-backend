@@ -15,4 +15,9 @@ export const DeleteCategoryPopup = DeletePopup.mixin({
   text: 'Cancellare una categoria porterà tute le sue news a essere considerate come "Generali" ',
 });
 
+export const deleteNewsPopup = DeletePopup.mixin({
+  title: "Sei sicuro di voler cancellare la news?",
+  text: "Non sarà possibile recuperare i dati una volta cancellati",
+});
+
 export default DeletePopup;
