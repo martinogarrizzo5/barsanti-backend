@@ -14,6 +14,7 @@ import fs from "fs/promises";
 import path from "path";
 import { categoryImageDir } from "@/lib/uploadFolders";
 import { auth, editorPrivilege } from "@/middlewares/auth";
+import { getCategoryImageName } from "@/lib/categoriesUtils";
 
 export const config = {
   api: {
@@ -72,9 +73,8 @@ async function createCategory(req: MultipartAuthRequest, res: NextApiResponse) {
     return res.status(400).json({ message: "Categoria già esistente" });
   }
 
-  const imageExtension = path.extname(categoryImage.originalFilename ?? "");
   const tempImagePath = categoryImage.filepath;
-  const newFileName = "image" + imageExtension;
+  const newFileName = getCategoryImageName(categoryImage);
 
   const category = await prisma.category.create({
     data: {

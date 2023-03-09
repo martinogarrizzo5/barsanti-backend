@@ -15,6 +15,11 @@ import { newsImageDir, newsFilesDir } from "@/lib/uploadFolders";
 import fs from "fs/promises";
 import { fromZodError } from "zod-validation-error";
 import { newsDto as formatNews } from "@/dto/newsDto";
+import {
+  deleteNewsFiles,
+  getNewsFileName,
+  getNewsImageName,
+} from "@/lib/newsUtils";
 
 export const config = {
   api: {
@@ -112,9 +117,8 @@ async function createNews(req: MultipartAuthRequest, res: NextApiResponse) {
   const formattedDate = new Date(date);
 
   // get image base info
-  const imageExt = path.extname(image.originalFilename);
   const tempImagePath = image.filepath;
-  const imageFileName = "image" + imageExt;
+  const imageFileName = getNewsImageName(image);
 
   // get files base info
   let files = rawFiles;
@@ -123,10 +127,7 @@ async function createNews(req: MultipartAuthRequest, res: NextApiResponse) {
     files = [files];
   }
   const tempFilesPath = files.map(file => file.filepath);
-  const filesNames = files.map(file => {
-    if (!file.originalFilename) throw new Error("Nome file mancante");
-    return file.originalFilename;
-  });
+  const filesNames = files.map(file => getNewsFileName(file));
 
   const news = await prisma.news.create({
     data: {
@@ -184,6 +185,7 @@ async function createNews(req: MultipartAuthRequest, res: NextApiResponse) {
     return res.status(201).json({ message: "Notizia creata con successo" });
   } catch {
     // TODO: delete files uploaded
+    await deleteNewsFiles(news.id);
 
     // delete news if image or files upload fails
     await prisma.news.delete({

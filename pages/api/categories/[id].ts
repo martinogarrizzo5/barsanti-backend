@@ -15,6 +15,7 @@ import path from "path";
 import { categoryImageDir } from "@/lib/uploadFolders";
 import { File } from "formidable";
 import fs from "fs/promises";
+import { getCategoryImageName } from "@/lib/categoriesUtils";
 
 export const config = {
   api: {
@@ -82,7 +83,6 @@ async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
   if (req.files && req.files.image instanceof File) {
     const categoryImage = req.files.image as File;
 
-    const imageExtension = path.extname(categoryImage.originalFilename ?? "");
     const tempPath = categoryImage.filepath;
     const uploadDir = await setupUploadDir();
     if (uploadDir === null)
@@ -94,11 +94,11 @@ async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
       categoryId.toString()
     );
     await ensureDirExistance(imageDir);
-    newImageName = "image" + imageExtension;
+    newImageName = getCategoryImageName(categoryImage);
     const newPath = path.join(imageDir, newImageName);
 
     // delete the old image if the extension is different
-    if (imageExtension !== path.extname(existingCategory?.imageName ?? "")) {
+    if (newImageName !== existingCategory?.imageName) {
       await fs.rm(path.join(imageDir, existingCategory?.imageName ?? ""));
     }
 

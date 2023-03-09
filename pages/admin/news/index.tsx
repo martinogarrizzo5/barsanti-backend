@@ -220,8 +220,9 @@ function EventsPage() {
             </div>
           ))}
         </div>
-        {areCategoriesRefetching ||
-          (areNewsRefetching && <RefetchingIndicator />)}
+        {(areCategoriesRefetching || areNewsRefetching) && (
+          <RefetchingIndicator />
+        )}
       </Main>
     </>
   );

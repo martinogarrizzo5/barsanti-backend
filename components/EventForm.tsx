@@ -34,6 +34,7 @@ export type EventFormData = {
   description: QuillValue;
   image: File | string | null;
   files: File[] | PrismaFile[];
+  deletedFiles: number[];
   highlited: boolean;
   category: Category | null;
   date: Date | undefined;
@@ -48,6 +49,8 @@ interface EventFormProps {
 }
 
 function EventForm(props: EventFormProps) {
+  // const [deletedFiles, setDeletedFiles] = React.useState<number[]>([]);
+
   const baseData = props.defaultData;
 
   const {
@@ -59,6 +62,7 @@ function EventForm(props: EventFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
     control,
     formState: { errors, isDirty },
   } = useForm<EventFormData>({
@@ -70,6 +74,7 @@ function EventForm(props: EventFormProps) {
       image: baseData?.imageUrl || null,
       files: baseData?.files || [],
       date: baseData?.date ? new Date(baseData?.date) : new Date(),
+      deletedFiles: [],
     },
   });
 
