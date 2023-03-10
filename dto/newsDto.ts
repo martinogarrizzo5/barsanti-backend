@@ -4,10 +4,16 @@ import { News } from "@prisma/client";
 import urlJoin from "url-join";
 import { exclude } from "./modelUtils";
 
-export interface ExtendedNews extends News {
+// minimum fields required for a news
+export interface MinimumNews {
+  id: number;
+  title: string;
+  imageName: string;
+  createdAt: Date;
+  updatedAt: Date;
   [key: string]: any;
 }
-export const newsDto = (news: ExtendedNews) => {
+export const newsDto = (news: MinimumNews) => {
   const imageUrl = urlJoin(
     imageHost!,
     newsImageDir,

@@ -16,7 +16,7 @@ import "react-date-range/dist/theme/default.css";
 import useComponentVisible from "@/hooks/useComponentVisible";
 import RefetchingIndicator from "@/components/RefetchingIndicator";
 import Main from "@/components/Main";
-import { ExtendedNews, NewsDto } from "@/dto/newsDto";
+import { MinimumNews, NewsDto } from "@/dto/newsDto";
 import { AiOutlineDelete } from "react-icons/ai";
 import useDebounce from "@/hooks/useDebounce";
 import { isValidDate } from "@/lib/dates";
