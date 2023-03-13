@@ -19,6 +19,7 @@ import {
 } from "@/lib/newsUtils";
 import { File as FormFile } from "formidable";
 import { auth, editorPrivilege } from "@/middlewares/auth";
+import { fromZodError } from "zod-validation-error";
 
 export const config = {
   api: {
@@ -99,13 +100,20 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
   // parse form data
   const formResult = editNewsRequestSchema.safeParse(req.body);
   if (!formResult.success) {
-    return res.status(400).json({ message: "Dati non validi" });
+    return res
+      .status(400)
+      .json({ message: fromZodError(formResult.error).message });
   }
 
   const { title, description, category, highlighted, date, deletedFiles } =
     formResult.data;
 
   console.log(formResult.data);
+
+  let newImageName;
+  if (req.files?.image && !Array.isArray(req.files.image)) {
+    newImageName = getNewsImageName(req.files?.image);
+  }
 
   // update news data
   try {
@@ -115,13 +123,14 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
         title: title,
         description: description,
         categoryId: category,
+        imageName: newImageName,
         highlighted:
           highlighted === undefined ? undefined : highlighted === "true",
-        date: date,
+        date: date ? new Date(date) : undefined,
         files: {
           deleteMany: {
             id: {
-              in: deletedFiles,
+              in: deletedFiles ?? [],
             },
           },
         },
@@ -165,12 +174,19 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
       if (image) {
         const tempImagePath = image.filepath;
         const newImageName = getNewsImageName(image);
-        const newImagePath = path.join(imageDir);
-        if (newImageName !== oldNews.imageName) {
-          await fs.rm(path.join(imageDir, oldNews.imageName ?? ""));
-        }
+        const newImagePath = path.join(imageDir, newImageName);
+        try {
+          if (newImageName !== oldNews.imageName) {
+            await fs.rm(path.join(imageDir, oldNews.imageName ?? ""));
+          }
 
-        await fs.rename(tempImagePath, newImagePath);
+          await fs.rename(tempImagePath, newImagePath);
+        } catch (err: any) {
+          if (err.code === "ENOENT") {
+            await fs.copyFile(tempImagePath, newImagePath);
+            await fs.rm(tempImagePath);
+          }
+        }
       }
 
       // delete old files

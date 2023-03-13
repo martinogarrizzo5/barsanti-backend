@@ -44,6 +44,16 @@ function ModifyEventPage() {
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("description", data.description.toString());
+      formData.append("highlighted", data.highlighted.toString());
+      if (data.date) {
+        formData.append("date", data.date.toString());
+      }
+      if (data.category) {
+        formData.append("category", data.category.id.toString());
+      }
+      if (data.image && data.image instanceof File) {
+        formData.append("image", data.image);
+      }
       return axios.put(`/api/news/${id}`, formData);
     },
     {

@@ -24,7 +24,7 @@ function AddEventPage() {
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("description", data.description.toString());
-      formData.append("highlighted", data.highlited.toString());
+      formData.append("highlighted", data.highlighted.toString());
 
       if (data.category) {
         formData.append("category", data.category.id.toString());

@@ -21,6 +21,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import useDebounce from "@/hooks/useDebounce";
 import { isValidDate } from "@/lib/dates";
 import { deleteNewsPopup } from "@/components/DeletePopup";
+import Image from "next/image";
 
 interface CategoryOption {
   id: number;
@@ -82,7 +83,7 @@ function EventsPage() {
       const endDate = config.queryKey[3] as Date;
 
       return axios
-        .get<NewsDto[]>("/api/news", {
+        .get<MinimumNews[]>("/api/news", {
           params: {
             category: category,
             search: config.queryKey[4] || undefined,
@@ -202,9 +203,16 @@ function EventsPage() {
               className="gridRow flex cursor-pointer items-center"
             >
               <div
-                className="flex flex-1 border-r-2 border-grayBorder py-5 px-8 "
+                className="flex flex-1 items-center border-r-2 border-grayBorder py-5 px-8 "
                 onClick={() => router.push(`/admin/news/${item.id}`)}
               >
+                <Image
+                  src={item.imageUrl}
+                  width={80}
+                  height={80}
+                  alt="event representation"
+                  className="mr-4 h-20 w-20 object-cover"
+                />
                 <h2 className="mr-4 w-9/12 font-medium">{item.title}</h2>
                 <h3 className="flex w-3/12 items-center">
                   <BsCalendar3 className="mr-2 text-lg text-primary" />

@@ -35,7 +35,7 @@ export type EventFormData = {
   image: File | string | null;
   files: File[] | PrismaFile[];
   deletedFiles: number[];
-  highlited: boolean;
+  highlighted: boolean;
   category: Category | null;
   date: Date | undefined;
 };
@@ -67,7 +67,7 @@ function EventForm(props: EventFormProps) {
     formState: { errors, isDirty },
   } = useForm<EventFormData>({
     defaultValues: {
-      highlited: baseData?.highlighted || false,
+      highlighted: baseData?.highlighted || false,
       category: baseData?.category || null,
       title: baseData?.title || "",
       description: baseData?.description || "",
@@ -120,7 +120,7 @@ function EventForm(props: EventFormProps) {
           />
         </div>
         <Controller
-          name="highlited"
+          name="highlighted"
           control={control}
           render={({ field: { value, onChange } }) => (
             <div className="ml-10 mb-2  flex-[2] ">
