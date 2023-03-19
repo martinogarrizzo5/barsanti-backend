@@ -1,4 +1,5 @@
 import fs from "fs";
+import s from "fs/promises";
 import path from "path";
 import apiHandler from "@/lib/apiHandler";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -11,6 +12,11 @@ async function serveFile(req: NextApiRequest, res: NextApiResponse) {
   if (!requestedImage || !Array.isArray(requestedImage)) {
     return res.status(404).end();
   }
+
+  const devPath = path.join(process.cwd(), "uploads");
+  const baseDir = process.env.ROOT_DIR || devPath;
+  await s.stat(baseDir);
+  await s.access(baseDir, s.constants.W_OK);
 
   const uploadDir = await setupUploadDir();
   if (!uploadDir) {
