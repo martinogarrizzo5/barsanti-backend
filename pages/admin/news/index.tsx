@@ -206,7 +206,7 @@ function EventsPage() {
                 className="flex flex-1 items-center border-r-2 border-grayBorder py-5 px-8 "
                 onClick={() => router.push(`/admin/news/${item.id}`)}
               >
-                <Image
+                <img
                   src={item.imageUrl}
                   width={80}
                   height={80}
