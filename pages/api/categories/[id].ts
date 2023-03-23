@@ -16,6 +16,7 @@ import { categoryImageDir } from "@/lib/uploadFolders";
 import { File } from "formidable";
 import fs from "fs/promises";
 import { getCategoryImageName } from "@/lib/categoriesUtils";
+import { move as moveFile } from "fs-extra";
 
 export const config = {
   api: {
@@ -102,7 +103,7 @@ async function editCategory(req: MultipartAuthRequest, res: NextApiResponse) {
       await fs.rm(path.join(imageDir, existingCategory?.imageName ?? ""));
     }
 
-    await fs.rename(tempPath, newPath);
+    await moveFile(tempPath, newPath, { overwrite: true });
   }
 
   // update image name if it was changed or if it has different extension

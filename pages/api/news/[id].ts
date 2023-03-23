@@ -20,6 +20,7 @@ import {
 import { File as FormFile } from "formidable";
 import { auth, editorPrivilege } from "@/middlewares/auth";
 import { fromZodError } from "zod-validation-error";
+import { move as moveFile } from "fs-extra";
 
 export const config = {
   api: {
@@ -180,7 +181,7 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
             await fs.rm(path.join(imageDir, oldNews.imageName ?? ""));
           }
 
-          await fs.rename(tempImagePath, newImagePath);
+          await moveFile(tempImagePath, newImagePath, { overwrite: true });
         } catch (err: any) {
           if (err.code === "ENOENT") {
             await fs.copyFile(tempImagePath, newImagePath);
@@ -217,7 +218,7 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
         newFiles.map((file, i) => {
           const tempFilePath = file.filepath;
           const newFilePath = path.join(filesDir, newFilesName[i]);
-          return fs.rename(tempFilePath, newFilePath);
+          return moveFile(tempFilePath, newFilePath, { overwrite: true });
         })
       );
     } catch (err) {

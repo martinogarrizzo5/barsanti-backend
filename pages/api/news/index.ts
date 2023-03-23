@@ -20,6 +20,7 @@ import {
   getNewsFileName,
   getNewsImageName,
 } from "@/lib/newsUtils";
+import { move as moveFile } from "fs-extra";
 
 export const config = {
   api: {
@@ -173,14 +174,14 @@ async function createNews(req: MultipartAuthRequest, res: NextApiResponse) {
     await Promise.all(
       filesNames.map((fileName, i) => {
         const filePath = path.join(filesDir, fileName);
-        return fs.rename(tempFilesPath[i], filePath);
+        return moveFile(tempFilesPath[i], filePath, { overwrite: true });
       })
     );
 
     // save image
     await ensureDirExistance(imageDir);
     const imagePath = path.join(imageDir, imageFileName);
-    await fs.rename(tempImagePath, imagePath);
+    await moveFile(tempImagePath, imagePath, { overwrite: true });
 
     return res.status(201).json({ message: "Notizia creata con successo" });
   } catch {

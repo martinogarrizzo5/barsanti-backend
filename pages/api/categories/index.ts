@@ -15,6 +15,7 @@ import path from "path";
 import { categoryImageDir } from "@/lib/uploadFolders";
 import { auth, editorPrivilege } from "@/middlewares/auth";
 import { getCategoryImageName } from "@/lib/categoriesUtils";
+import { move as moveFile } from "fs-extra";
 
 export const config = {
   api: {
@@ -98,7 +99,7 @@ async function createCategory(req: MultipartAuthRequest, res: NextApiResponse) {
 
     // check existance of the directory
     await ensureDirExistance(imageDir);
-    await fs.rename(tempImagePath, newPath);
+    await moveFile(tempImagePath, newPath, { overwrite: true });
 
     return res.status(201).json({ message: "Categoria creata con successo" });
   } catch (err) {
