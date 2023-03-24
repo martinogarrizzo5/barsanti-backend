@@ -16,6 +16,7 @@ import { categoryImageDir } from "@/lib/uploadFolders";
 import { auth, editorPrivilege } from "@/middlewares/auth";
 import { getCategoryImageName } from "@/lib/categoriesUtils";
 import { move as moveFile } from "fs-extra";
+import { categoryDto as formatCategories } from "../../../dto/categoryDto";
 
 export const config = {
   api: {
@@ -45,7 +46,7 @@ async function getCategories(
     },
   });
 
-  res.json(categories);
+  res.json(categories.map(category => formatCategories(category)));
 }
 
 const createCategorySchema = z.object({
