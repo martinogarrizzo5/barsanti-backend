@@ -3,6 +3,7 @@ import path from "path";
 import apiHandler from "@/lib/apiHandler";
 import { NextApiRequest, NextApiResponse } from "next";
 import setupUploadDir from "@/lib/setupUploadDir";
+import { getContentTypeHeader } from "@/lib/fileUtils";
 
 export default apiHandler().get(serveFile);
 
@@ -27,8 +28,11 @@ async function serveFile(req: NextApiRequest, res: NextApiResponse) {
 
   const filePath = path.join(uploadDir, "files", safePath);
   const fileStream = fs.createReadStream(filePath);
+  const fileExt = path.extname(filePath);
 
   res.setHeader("Cache-Control", "public, max-age=3600");
+  res.setHeader("Content-Type", getContentTypeHeader(fileExt));
+
   fileStream.pipe(res);
 
   fileStream.on("error", (err: any) => {
