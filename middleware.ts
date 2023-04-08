@@ -13,7 +13,10 @@ export function middleware(request: NextRequest) {
   }
 
   // rewrite all /images requests to /api/uploads/images
-  if (request.nextUrl.pathname.startsWith("/images")) {
+  if (
+    request.nextUrl.pathname.startsWith("/images") ||
+    request.nextUrl.pathname.startsWith("/files")
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/api/uploads" + url.pathname;
 

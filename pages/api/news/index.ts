@@ -33,13 +33,14 @@ export default apiHandler()
   .post(auth, editorPrivilege, parseMultipart, createNews);
 
 const getNewsSchema = z.object({
-  // cursor: numericString(z.number().optional()), // date of news (used for infine scroll in mobile app)
+  // cursor: numericString(z.number().optional()), // date of news (used for infine scroll in future)
   page: numericString(z.number().optional().default(0)),
   search: z.string().optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   category: numericString(z.number().int().nonnegative().optional()),
   highlighted: z.enum(["true", "false"]).optional(),
+  ids: z.array(numericString(z.number().int().nonnegative())).optional(),
 });
 async function getNews(req: NextApiRequest, res: NextApiResponse) {
   const result = getNewsSchema.safeParse(req.query);
@@ -47,7 +48,7 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ error: fromZodError(result.error).message });
   }
 
-  const { page, search, startDate, endDate, category, highlighted } =
+  const { page, search, startDate, endDate, category, highlighted, ids } =
     result.data;
   const resultsPerPage = 15;
 
@@ -56,6 +57,9 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
       date: "desc",
     },
     where: {
+      id: {
+        in: ids,
+      },
       title: {
         search: search,
       },
