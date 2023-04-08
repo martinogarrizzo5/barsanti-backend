@@ -28,6 +28,7 @@ import "react-date-range/dist/theme/default.css";
 import "react-quill/dist/quill.snow.css";
 import { NewsDto } from "@/dto/newsDto";
 import classNames from "classnames";
+import { getTodayDate } from "@/lib/dates";
 
 export type EventFormData = {
   title: string;
@@ -73,7 +74,7 @@ function EventForm(props: EventFormProps) {
       description: baseData?.description || "",
       image: baseData?.imageUrl || null,
       files: baseData?.files || [],
-      date: baseData?.date ? new Date(baseData?.date) : new Date(),
+      date: baseData?.date ? new Date(baseData?.date) : getTodayDate(),
       deletedFiles: [],
     },
   });

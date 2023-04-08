@@ -33,7 +33,7 @@ export default apiHandler()
   .post(auth, editorPrivilege, parseMultipart, createNews);
 
 const getNewsSchema = z.object({
-  cursor: numericString(z.number().optional()), // id of news (used for infine scroll in mobile app)
+  // cursor: numericString(z.number().optional()), // date of news (used for infine scroll in mobile app)
   page: numericString(z.number().optional().default(0)),
   search: z.string().optional(),
   startDate: z.string().datetime().optional(),
