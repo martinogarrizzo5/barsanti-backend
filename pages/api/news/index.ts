@@ -35,10 +35,11 @@ export default apiHandler()
 const getNewsSchema = z.object({
   // cursor: numericString(z.number().optional()), // date of news (used for infine scroll in future)
   page: numericString(z.number().optional().default(0)),
+  take: numericString(z.number()).optional(),
   search: z.string().optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
-  category: numericString(z.number().int().nonnegative().optional()),
+  category: numericString(z.number().int().nonnegative()).optional(),
   highlighted: z.enum(["true", "false"]).optional(),
   ids: z.string().optional(), // string of ids separated by comma
 });
@@ -48,9 +49,9 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ error: fromZodError(result.error).message });
   }
 
-  const { page, search, startDate, endDate, category, highlighted, ids } =
+  const { page, search, startDate, endDate, category, highlighted, ids, take } =
     result.data;
-  const resultsPerPage = 15;
+  const resultsPerPage = take ?? 15;
 
   // reconstruct ids array: 1,3,5 => [1,3,5]
   let newsIds;
