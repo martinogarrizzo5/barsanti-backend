@@ -257,6 +257,7 @@ function EventForm(props: EventFormProps) {
                         className="flex-1 text-sm"
                         href={file instanceof File ? "" : file.url}
                         target="_blank"
+                        rel="noreferrer"
                       >
                         {getFileShortName(file.name)}
                       </a>
