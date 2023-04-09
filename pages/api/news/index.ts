@@ -40,7 +40,7 @@ const getNewsSchema = z.object({
   endDate: z.string().datetime().optional(),
   category: numericString(z.number().int().nonnegative().optional()),
   highlighted: z.enum(["true", "false"]).optional(),
-  ids: z.array(numericString(z.number().int().nonnegative())).optional(),
+  ids: z.string().optional(), // string of ids separated by comma
 });
 async function getNews(req: NextApiRequest, res: NextApiResponse) {
   const result = getNewsSchema.safeParse(req.query);
@@ -52,13 +52,22 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
     result.data;
   const resultsPerPage = 15;
 
+  // reconstruct ids array: 1,3,5 => [1,3,5]
+  let newsIds;
+  if (ids) {
+    newsIds = ids
+      .split(",")
+      .filter(id => !isNaN(parseInt(id)))
+      .map(id => parseInt(id));
+  }
+
   const news = await prisma.news.findMany({
     orderBy: {
       date: "desc",
     },
     where: {
       id: {
-        in: ids,
+        in: newsIds,
       },
       title: {
         search: search,

@@ -26,7 +26,7 @@ import useComponentVisible from "@/hooks/useComponentVisible";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "react-quill/dist/quill.snow.css";
-import { NewsDto } from "@/dto/newsDto";
+import { DtoFile, NewsDto } from "@/dto/newsDto";
 import classNames from "classnames";
 import { getTodayDate } from "@/lib/dates";
 
@@ -34,7 +34,7 @@ export type EventFormData = {
   title: string;
   description: QuillValue;
   image: File | string | null;
-  files: File[] | PrismaFile[];
+  files: File[] | DtoFile[];
   deletedFiles: number[];
   highlighted: boolean;
   category: Category | null;
@@ -253,9 +253,13 @@ function EventForm(props: EventFormProps) {
                       className="gridRow flex items-center pl-4 last:mb-12 "
                     >
                       <BsFileEarmark className="mr-2 text-xl" />
-                      <span className="flex-1 text-sm">
+                      <a
+                        className="flex-1 text-sm"
+                        href={file instanceof File ? "" : file.url}
+                        target="_blank"
+                      >
                         {getFileShortName(file.name)}
-                      </span>
+                      </a>
                       <div
                         className="ml-auto cursor-pointer p-4 text-red-600 duration-200 hover:bg-red-600 hover:text-white"
                         onClick={() => {

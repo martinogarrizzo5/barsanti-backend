@@ -1,6 +1,6 @@
 import { imageHost } from "@/lib/fileUtils";
 import { newsFilesDir, newsImageDir } from "@/lib/uploadFolders";
-import { News } from "@prisma/client";
+import { News, File as PrismaFile } from "@prisma/client";
 import urlJoin from "url-join";
 import { exclude } from "./modelUtils";
 
@@ -13,6 +13,11 @@ export interface MinimumNews {
   updatedAt: Date;
   [key: string]: any;
 }
+
+export interface DtoFile extends PrismaFile {
+  url: string;
+}
+
 export const newsDto = (news: MinimumNews) => {
   const imageUrl = urlJoin(
     imageHost!,
