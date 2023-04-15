@@ -50,8 +50,6 @@ interface EventFormProps {
 }
 
 function EventForm(props: EventFormProps) {
-  // const [deletedFiles, setDeletedFiles] = React.useState<number[]>([]);
-
   const baseData = props.defaultData;
 
   const {

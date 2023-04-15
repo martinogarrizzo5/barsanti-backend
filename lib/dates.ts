@@ -21,3 +21,9 @@ export function getYesterdayDate() {
 
   return date;
 }
+
+export function addDaysToDate(date: Date, days: number) {
+  date.setDate(date.getDate() + days);
+
+  return date;
+}

@@ -54,6 +54,13 @@ function ModifyEventPage() {
       if (data.image && data.image instanceof File) {
         formData.append("image", data.image);
       }
+
+      if (data.deletedFiles) {
+        data.deletedFiles.forEach((file, i) => {
+          formData.append(`deletedFiles[]`, file.toString());
+        });
+      }
+
       return axios.put(`/api/news/${id}`, formData);
     },
     {

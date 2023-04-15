@@ -55,6 +55,7 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
         select: {
           id: true,
           name: true,
+          updatedAt: true,
         },
       },
     },
@@ -108,8 +109,6 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
 
   const { title, description, category, highlighted, date, deletedFiles } =
     formResult.data;
-
-  console.log(formResult.data);
 
   let newImageName;
   if (req.files?.image && !Array.isArray(req.files.image)) {

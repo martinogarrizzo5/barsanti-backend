@@ -94,6 +94,7 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
         select: {
           id: true,
           name: true,
+          updatedAt: true,
         },
       },
     },

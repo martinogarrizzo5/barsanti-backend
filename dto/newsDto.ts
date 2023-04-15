@@ -29,7 +29,7 @@ export const newsDto = (news: MinimumNews) => {
 
   let files = null;
   if (news.files) {
-    files = news.files.map((file: any) => {
+    files = news.files.map((file: PrismaFile) => {
       return {
         ...file,
         url: urlJoin(
@@ -37,7 +37,7 @@ export const newsDto = (news: MinimumNews) => {
           newsFilesDir,
           news.id.toString(),
           file.name,
-          "?lastUpdate=" + news.updatedAt.getTime()
+          "?lastUpdate=" + file.updatedAt.getTime()
         ),
       };
     });

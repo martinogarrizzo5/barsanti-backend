@@ -1,14 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import apiHandler from "@/lib/apiHandler";
 import prisma from "@/lib/prisma";
-import { getYesterdayDate } from "@/lib/dates";
+import { addDaysToDate, getTodayDate, getYesterdayDate } from "@/lib/dates";
 import { newsDto } from "@/dto/newsDto";
 
 export default apiHandler().get(getHomeData);
 
 // in this version we can have a news both on the latest news and on the highlighted news
 async function getHomeData(req: NextApiRequest, res: NextApiResponse) {
-  const yesterday = getYesterdayDate();
+  const startDate = addDaysToDate(getTodayDate(), -7);
 
   const minNewsProps = {
     id: true,
@@ -29,7 +29,7 @@ async function getHomeData(req: NextApiRequest, res: NextApiResponse) {
     select: minNewsProps,
     where: {
       date: {
-        gte: yesterday,
+        gte: startDate,
       },
     },
     orderBy: {
