@@ -18,7 +18,7 @@ interface AuthState {
   clear: () => void;
 }
 
-const useAuthStore = create<AuthState>((set) => ({
+const useAuthStore = create<AuthState>(set => ({
   isLoading: true,
   user: null,
   signInWithGoogle: async () => {

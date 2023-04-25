@@ -55,9 +55,18 @@ function ModifyEventPage() {
         formData.append("image", data.image);
       }
 
+      console.log(data);
       if (data.deletedFiles) {
         data.deletedFiles.forEach((file, i) => {
           formData.append(`deletedFiles[]`, file.toString());
+        });
+      }
+
+      if (data.files) {
+        data.files.forEach((file, i) => {
+          if (file instanceof File) {
+            formData.append(`newFiles`, file);
+          }
         });
       }
 

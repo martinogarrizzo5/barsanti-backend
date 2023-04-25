@@ -12,6 +12,7 @@ import "@/styles/globals.css";
 import "@/styles/nprogress.css";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import InitialLoading from "@/components/InitialLoading";
 
 const queryClient = new QueryClient();
 
@@ -53,15 +54,16 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     if (auth.isLoading) return;
 
-    // redirect if necessary after checking user
-    if (auth.user != null) {
-      if (router.pathname === "/login") {
-        router.replace("/admin");
-      }
-    } else {
-      if (router.pathname.startsWith("/admin")) {
+    if (auth.user === null) {
+      if (router.pathname !== "/login") {
         router.replace("/login");
       }
+
+      return;
+    }
+
+    if (router.pathname === "/login" && !router.pathname.startsWith("/admin")) {
+      router.replace("/admin");
     }
   }, [auth]);
 
@@ -84,12 +86,7 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
-  if (auth.isLoading)
-    return (
-      <div className="flex h-[100vh] items-center justify-center text-xl">
-        Loading Dashboard...
-      </div>
-    );
+  if (auth.isLoading) return <InitialLoading />;
 
   return (
     <QueryClientProvider client={queryClient}>

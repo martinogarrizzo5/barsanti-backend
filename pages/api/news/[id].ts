@@ -158,6 +158,7 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
     }
 
     let newFiles = req.files.newFiles;
+
     if (!newFiles) newFiles = [];
     if (!Array.isArray(newFiles)) {
       newFiles = [newFiles];
@@ -200,7 +201,6 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
       }
 
       let newFilesName = newFiles.map(file => getNewsFileName(file));
-
       // create new files references
       await prisma.file.createMany({
         data: newFiles.map((file, i) => {

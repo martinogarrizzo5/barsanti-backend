@@ -62,6 +62,7 @@ function EventForm(props: EventFormProps) {
     register,
     handleSubmit,
     setValue,
+    watch,
     control,
     formState: { errors, isDirty },
   } = useForm<EventFormData>({
@@ -94,6 +95,32 @@ function EventForm(props: EventFormProps) {
 
     props.onSubmit(data);
   });
+
+  const handleFileDeletion = (
+    files: DtoFile[] | File[],
+    file: DtoFile | File,
+    index: number,
+    onChange: Function
+  ) => {
+    // case where file is not yet uploaded
+    if (file instanceof File) {
+      const newFiles = [...files];
+      newFiles.splice(index, 1);
+      onChange(newFiles);
+    }
+    // case where file is already uploaded and we need to delete it from the server
+    else {
+      setValue("deletedFiles", [...watch("deletedFiles"), file.id], {
+        shouldDirty: true,
+      });
+
+      const files = [...watch("files")];
+      files.splice(index, 1);
+      setValue("files", files as DtoFile[], {
+        shouldDirty: true,
+      });
+    }
+  };
 
   if (areCategoriesLoading) {
     return <LoadingIndicator />;
@@ -240,7 +267,7 @@ function EventForm(props: EventFormProps) {
         <Controller
           control={control}
           name="files"
-          render={({ field: { value: files, onChange } }) => (
+          render={({ field: { value: files, onChange }, formState }) => (
             <div className="flex w-5/12 flex-col">
               <label className="label mb-2">File Relativi</label>
               <div className="input relative h-full w-full">
@@ -261,11 +288,9 @@ function EventForm(props: EventFormProps) {
                       </a>
                       <div
                         className="ml-auto cursor-pointer p-4 text-red-600 duration-200 hover:bg-red-600 hover:text-white"
-                        onClick={() => {
-                          const newFiles = [...files];
-                          newFiles.splice(i, 1);
-                          onChange(newFiles);
-                        }}
+                        onClick={() =>
+                          handleFileDeletion(files, file, i, onChange)
+                        }
                       >
                         <AiOutlineDelete className="text-[1.5rem] " />
                       </div>

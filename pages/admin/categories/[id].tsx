@@ -40,7 +40,7 @@ function EditCategoryPage() {
   });
 
   const editCategory = useMutation(
-    (data: CategoryFormData) => {
+    async (data: CategoryFormData) => {
       const { name, image } = data;
       const formData = new FormData();
       formData.append("name", name);
@@ -48,7 +48,8 @@ function EditCategoryPage() {
         formData.append("image", image);
       }
 
-      return axios.put(`/api/categories/${id}`, formData);
+      const res = await axios.put(`/api/categories/${id}`, formData);
+      return res;
     },
     {
       onSuccess: res => {
@@ -56,8 +57,8 @@ function EditCategoryPage() {
         requestSuccessToast(res).fire();
         router.replace("/admin/categories");
       },
-      onError: (err: AxiosError) => {
-        requestErrorToast(err).fire();
+      onError: async (err: AxiosError) => {
+        const result = await requestErrorToast(err).fire();
       },
     }
   );
