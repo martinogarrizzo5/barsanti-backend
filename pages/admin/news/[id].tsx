@@ -125,6 +125,7 @@ function ModifyEventPage() {
           defaultData={event}
           edit
           onDelete={deleteNews}
+          isSubmitting={editNewsMutation.isLoading}
         />
         {isRefetching && <RefetchingIndicator />}
       </Main>
