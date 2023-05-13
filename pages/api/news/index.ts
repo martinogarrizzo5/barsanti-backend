@@ -211,6 +211,4 @@ async function createNews(req: MultipartAuthRequest, res: NextApiResponse) {
     });
     return res.status(500).json({ message: "Impossibile salvare il file" });
   }
-
-  // return res.status(201).json({ message: "Notizia creata con successo" });
 }

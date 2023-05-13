@@ -8,7 +8,9 @@ function UsersPage() {
       <Head>
         <title>Utenti</title>
       </Head>
-      <Main></Main>
+      <Main>
+        <h1 className="text-3xl font-bold">Coming Soon!</h1>
+      </Main>
     </>
   );
 }

@@ -22,10 +22,16 @@ import useDebounce from "@/hooks/useDebounce";
 import { isValidDate } from "@/lib/dates";
 import { deleteNewsPopup } from "@/components/DeletePopup";
 import Image from "next/image";
+import PageControl from "@/components/PageControl";
 
 interface CategoryOption {
   id: number;
   name: string;
+}
+
+interface Pagination {
+  index: number;
+  size: number;
 }
 
 const dropDownResetOption = {
@@ -49,6 +55,11 @@ function EventsPage() {
     { key: "selectionDates", endDate: new Date("") },
   ]);
 
+  const [pagination, setPagination] = useState({
+    index: 0,
+    size: 20,
+  });
+
   const {
     isComponentVisible: isCalendarShown,
     setIsComponentVisible: showCalendar,
@@ -67,6 +78,7 @@ function EventsPage() {
       datesRange[0].startDate,
       datesRange[0].endDate,
       debouncedNews,
+      pagination,
     ],
     queryFn: async config => {
       let highlighted = false;
@@ -81,6 +93,8 @@ function EventsPage() {
 
       const startDate = config.queryKey[2] as Date;
       const endDate = config.queryKey[3] as Date;
+      const search = config.queryKey[4] as string | undefined;
+      const page = config.queryKey[5] as Pagination;
 
       return axios
         .get<MinimumNews[]>("/api/news", {
@@ -90,6 +104,8 @@ function EventsPage() {
             startDate: isValidDate(startDate) ? startDate : undefined,
             endDate: isValidDate(endDate) ? endDate : undefined,
             highlighted: highlighted,
+            page: page.index,
+            take: page.size,
           },
         })
         .then(res => res.data);
@@ -227,7 +243,29 @@ function EventsPage() {
               </button>
             </div>
           ))}
+          {news.length === 0 && (
+            <div className="mb-16 mt-4 text-xl font-medium">
+              Nessuna news presente
+            </div>
+          )}
         </div>
+        <PageControl
+          changePageSize={size => {
+            setPagination({ ...pagination, size: size });
+          }}
+          elementsOnPage={news.length}
+          goBack={() => {
+            setPagination({ ...pagination, index: pagination.index - 1 });
+          }}
+          goForward={() => {
+            setPagination({ ...pagination, index: pagination.index + 1 });
+          }}
+          goToFirstPage={() => {
+            setPagination({ ...pagination, index: 0 });
+          }}
+          pageIndex={pagination.index}
+          pageSize={pagination.size}
+        />
         {(areCategoriesRefetching || areNewsRefetching) && (
           <RefetchingIndicator />
         )}

@@ -8,7 +8,9 @@ function SettingsPage() {
       <Head>
         <title>Impostazioni</title>
       </Head>
-      <Main></Main>
+      <Main>
+        <h1 className="text-3xl font-bold">Coming Soon!</h1>
+      </Main>
     </>
   );
 }
