@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import apiHandler from "@/lib/apiHandler";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
-import { numericString } from "@/lib/zodExtensions";
+import { booleanString, numericString } from "@/lib/zodExtensions";
 import { newsDto as formatNews } from "@/dto/newsDto";
 import {
   MultipartAuthRequest,
@@ -72,11 +72,12 @@ const editNewsRequestSchema = z.object({
   title: z.string().min(1).optional(),
   description: z.string().min(1).optional(),
   category: numericString(z.number().int().nonnegative()).optional(),
-  highlighted: z.enum(["true", "false"]).optional(),
+  highlighted: booleanString(z.boolean()).optional(),
   date: z.string().optional(), // as datetime
   deletedFiles: z
     .array(numericString(z.number().int().nonnegative()))
     .optional(),
+  hidden: booleanString(z.boolean()).optional(),
 });
 const ediNewsQuerySchema = z.object({
   id: numericString(z.number().int().nonnegative()),
@@ -107,8 +108,15 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
       .json({ message: fromZodError(formResult.error).message });
   }
 
-  const { title, description, category, highlighted, date, deletedFiles } =
-    formResult.data;
+  const {
+    title,
+    description,
+    category,
+    highlighted,
+    date,
+    deletedFiles,
+    hidden,
+  } = formResult.data;
 
   let newImageName;
   if (req.files?.image && !Array.isArray(req.files.image)) {
@@ -124,8 +132,8 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
         description: description,
         categoryId: category,
         imageName: newImageName,
-        highlighted:
-          highlighted === undefined ? undefined : highlighted === "true",
+        highlighted: highlighted,
+        hidden: hidden,
         date: date ? new Date(date) : undefined,
         files: {
           deleteMany: {

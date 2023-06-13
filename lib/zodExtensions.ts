@@ -10,3 +10,10 @@ export const numericString = (schema: z.ZodTypeAny) =>
       return undefined;
     }
   }, schema) as z.ZodEffects<z.ZodTypeAny, number, number>;
+
+export const booleanString = (schema: z.ZodTypeAny) =>
+  z.preprocess(val => {
+    if (val === "true") return true;
+
+    return false;
+  }, schema) as z.ZodEffects<z.ZodTypeAny, boolean, boolean>;

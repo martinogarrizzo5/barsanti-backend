@@ -5,8 +5,8 @@ import { useRouter } from "next/router";
 import Select from "react-select";
 import LoadingIndicator from "@/components/LoadingIndicator";
 import ErrorLoading from "@/components/ErrorLoading";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios, { AxiosError } from "axios";
 import { GetCategoryResponse } from "@/pages/api/categories";
 import { dropDownStyles } from "@/lib/dropDownDefaultStyle";
 import { BsCalendar3 } from "react-icons/bs";
@@ -17,12 +17,21 @@ import useComponentVisible from "@/hooks/useComponentVisible";
 import RefetchingIndicator from "@/components/RefetchingIndicator";
 import Main from "@/components/Main";
 import { MinimumNews, NewsDto } from "@/dto/newsDto";
-import { AiOutlineDelete } from "react-icons/ai";
+import {
+  AiOutlineDelete,
+  AiOutlineEyeInvisible,
+  AiOutlineEye,
+} from "react-icons/ai";
 import useDebounce from "@/hooks/useDebounce";
 import { isValidDate } from "@/lib/dates";
-import { deleteNewsPopup } from "@/components/DeletePopup";
+import {
+  deleteNewsPopup,
+  hideNewsPopup,
+  showNewsPopup,
+} from "@/components/DeletePopup";
 import Image from "next/image";
 import PageControl from "@/components/PageControl";
+import { requestErrorToast, requestSuccessToast } from "@/components/Toast";
 
 interface CategoryOption {
   id: number;
@@ -46,6 +55,7 @@ const dropDownHighlightOption = {
 
 function EventsPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const [searchedNews, setSearchedNews] = useState("");
   const debouncedNews = useDebounce(searchedNews);
@@ -81,8 +91,9 @@ function EventsPage() {
       pagination,
     ],
     queryFn: async config => {
-      let highlighted = false;
+      let highlighted = undefined;
       let category = config.queryKey[1] || undefined;
+      let showHidden = true;
 
       if (selectedCategory?.id === -1) {
         highlighted = true;
@@ -106,6 +117,7 @@ function EventsPage() {
             highlighted: highlighted,
             page: page.index,
             take: page.size,
+            showHidden: showHidden,
           },
         })
         .then(res => res.data);
@@ -125,10 +137,76 @@ function EventsPage() {
     keepPreviousData: true,
   });
 
+  const deleteNewsMutation = useMutation(
+    (id: number) => axios.delete(`/api/news/${id}`),
+    {
+      onSuccess: res => {
+        queryClient.invalidateQueries(["news"]);
+        requestSuccessToast(res).fire();
+        router.replace("/admin/news");
+      },
+      onError: (err: AxiosError) => {
+        requestErrorToast(err).fire();
+      },
+    }
+  );
+
+  const hideNewsMutation = useMutation(
+    async (id: number) => {
+      const data = new FormData();
+      data.append("hidden", "true");
+      return axios.put(`/api/news/${id}`, data);
+    },
+    {
+      onSuccess: res => {
+        queryClient.invalidateQueries(["news"]);
+        requestSuccessToast(res).fire();
+      },
+      onError: (err: AxiosError) => {
+        requestErrorToast(err).fire();
+      },
+    }
+  );
+
+  const showNewsMutation = useMutation(
+    async (id: number) => {
+      const data = new FormData();
+      data.append("hidden", "false");
+      return axios.put(`/api/news/${id}`, data);
+    },
+    {
+      onSuccess: res => {
+        queryClient.invalidateQueries(["news"]);
+        requestSuccessToast(res).fire();
+      },
+      onError: (err: AxiosError) => {
+        requestErrorToast(err).fire();
+      },
+    }
+  );
+
   const showDeletePopup = (id: number) => {
     deleteNewsPopup.fire({
-      preConfirm: async () => {},
+      preConfirm: async () => {
+        await deleteNewsMutation.mutateAsync(id);
+      },
     });
+  };
+
+  const toggleHidden = async (news: MinimumNews) => {
+    if (news.hidden) {
+      showNewsPopup.fire({
+        preConfirm: async () => {
+          await showNewsMutation.mutateAsync(news.id);
+        },
+      });
+    } else {
+      hideNewsPopup.fire({
+        preConfirm: async () => {
+          await hideNewsMutation.mutateAsync(news.id);
+        },
+      });
+    }
   };
 
   if (areNewsLoading || areCategoriesLoading) return <LoadingIndicator />;
@@ -235,6 +313,16 @@ function EventsPage() {
                   <span>{new Date(item.date).toLocaleDateString()}</span>
                 </h3>
               </div>
+              <button
+                className="self-stretch border-r-2 border-grayBorder p-4 text-gray-600 duration-200 hover:bg-gray-600 hover:text-white"
+                onClick={() => toggleHidden(item)}
+              >
+                {item.hidden ? (
+                  <AiOutlineEyeInvisible className="text-[24px]" />
+                ) : (
+                  <AiOutlineEye className="text-[24px]" />
+                )}
+              </button>
               <button
                 className="self-stretch p-4 text-red-600 duration-200 hover:bg-red-600 hover:text-white"
                 onClick={() => showDeletePopup(item.id)}

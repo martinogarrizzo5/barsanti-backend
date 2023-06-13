@@ -7,7 +7,7 @@ import {
   MultipartAuthRequest,
   parseMultipart,
 } from "@/middlewares/multipart-parser";
-import { numericString } from "@/lib/zodExtensions";
+import { booleanString, numericString } from "@/lib/zodExtensions";
 import path from "path";
 import { File as FormFile } from "formidable";
 import setupUploadDir, { ensureDirExistance } from "@/lib/setupUploadDir";
@@ -40,8 +40,9 @@ const getNewsSchema = z.object({
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   category: numericString(z.number().int().nonnegative()).optional(),
-  highlighted: z.enum(["true", "false"]).optional(),
+  highlighted: booleanString(z.boolean()).optional(),
   ids: z.string().optional(), // string of ids separated by comma
+  showHidden: booleanString(z.boolean()).optional(),
 });
 async function getNews(req: NextApiRequest, res: NextApiResponse) {
   const result = getNewsSchema.safeParse(req.query);
@@ -49,8 +50,17 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ error: fromZodError(result.error).message });
   }
 
-  const { page, search, startDate, endDate, category, highlighted, ids, take } =
-    result.data;
+  const {
+    page,
+    search,
+    startDate,
+    endDate,
+    category,
+    highlighted,
+    ids,
+    take,
+    showHidden,
+  } = result.data;
   const resultsPerPage = take ?? 15;
 
   // reconstruct ids array: 1,3,5 => [1,3,5]
@@ -81,7 +91,15 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
         gte: startDate,
         lte: endDate,
       },
-      highlighted: highlighted === "true" ? true : undefined,
+      highlighted: highlighted ?? undefined,
+      OR: [
+        {
+          hidden: false,
+        },
+        {
+          hidden: showHidden,
+        },
+      ],
     },
     include: {
       category: {

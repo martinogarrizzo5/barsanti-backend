@@ -20,4 +20,16 @@ export const deleteNewsPopup = DeletePopup.mixin({
   text: "Non sarà possibile recuperare i dati una volta cancellati",
 });
 
+export const hideNewsPopup = DeletePopup.mixin({
+  title: "Sei sicuro di voler nascondere la news?",
+  text: "La news non sarà più visibile agli utenti.",
+  confirmButtonText: "Si, nascondi",
+});
+
+export const showNewsPopup = DeletePopup.mixin({
+  title: "Sei sicuro di voler mostrare la news?",
+  text: "La news sarà visibile agli utenti.",
+  confirmButtonText: "Si, mostra",
+});
+
 export default DeletePopup;

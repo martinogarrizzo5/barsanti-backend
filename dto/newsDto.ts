@@ -11,6 +11,7 @@ export interface MinimumNews {
   imageName: string;
   createdAt: Date;
   updatedAt: Date;
+  hidden: boolean;
   [key: string]: any;
 }
 
