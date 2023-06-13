@@ -32,6 +32,7 @@ async function getHomeData(req: NextApiRequest, res: NextApiResponse) {
       date: {
         gte: startDate,
       },
+      hidden: false,
     },
     orderBy: {
       date: "asc",
@@ -43,6 +44,7 @@ async function getHomeData(req: NextApiRequest, res: NextApiResponse) {
     select: minNewsProps,
     where: {
       highlighted: true,
+      hidden: false,
     },
     orderBy: {
       createdAt: "desc",
