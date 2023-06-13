@@ -23,6 +23,7 @@ async function getHomeData(req: NextApiRequest, res: NextApiResponse) {
         name: true,
       },
     },
+    hidden: true,
   };
 
   const latestNewsQuery = prisma.news.findMany({
