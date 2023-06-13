@@ -65,7 +65,7 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404).json({ message: "Notizia non trovata" });
   }
 
-  return res.json(formatNews(news as any));
+  return res.json(formatNews(news));
 }
 
 const editNewsRequestSchema = z.object({
