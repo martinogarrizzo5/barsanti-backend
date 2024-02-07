@@ -7,10 +7,6 @@ import { categoryImageDir } from "../lib/uploadFolders";
 Data Transfer Object are used to transform data from the database 
 to a format that is more suitable for the client
 */
-interface MinimumCategory extends Category {
-  [key: string]: any;
-  _count?: any;
-}
 
 export const categoryDto = (category: any) => {
   const imageUrl = urlJoin(

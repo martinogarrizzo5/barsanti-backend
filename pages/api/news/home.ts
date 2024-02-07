@@ -58,6 +58,7 @@ async function getHomeData(req: NextApiRequest, res: NextApiResponse) {
     where: {
       highlighted: true,
       hidden: false,
+      deletedAt: null,
     },
     orderBy: {
       createdAt: "desc",

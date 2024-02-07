@@ -5,7 +5,7 @@ import urlJoin from "url-join";
 import { exclude } from "./modelUtils";
 
 // minimum fields required for a news
-export interface MinimumNews {
+export interface MinNews {
   id: number;
   title: string;
   imageName: string;
@@ -19,7 +19,7 @@ export interface DtoFile extends PrismaFile {
   url: string;
 }
 
-export const compileNewsDto = (news: MinimumNews) => {
+export const compileNewsDto = (news: MinNews) => {
   const imageUrl = urlJoin(
     imageHost!,
     newsImageDir,
@@ -28,7 +28,7 @@ export const compileNewsDto = (news: MinimumNews) => {
     "?lastUpdate=" + news.updatedAt.getTime()
   );
 
-  let files = null;
+  let files: DtoFile[] | null = null;
   if (news.files) {
     files = news.files.map((file: PrismaFile) => {
       return {
@@ -43,9 +43,6 @@ export const compileNewsDto = (news: MinimumNews) => {
       };
     });
   }
-
-  // exlude unnecessary fields or overwritten fields
-  exclude(news, ["imageName", "authorId", "categoryId", "files"]);
 
   return { ...news, imageUrl: imageUrl, ...(files && { files }) };
 };

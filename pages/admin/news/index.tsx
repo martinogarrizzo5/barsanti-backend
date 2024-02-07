@@ -16,7 +16,7 @@ import "react-date-range/dist/theme/default.css";
 import useComponentVisible from "@/hooks/useComponentVisible";
 import RefetchingIndicator from "@/components/RefetchingIndicator";
 import Main from "@/components/Main";
-import { MinimumNews } from "@/dto/newsDto";
+import { MinNews } from "@/dto/newsDto";
 import {
   AiOutlineDelete,
   AiOutlineEyeInvisible,
@@ -107,7 +107,7 @@ function EventsPage() {
       const page = config.queryKey[5] as Pagination;
 
       return axios
-        .get<MinimumNews[]>("/api/news", {
+        .get<MinNews[]>("/api/news", {
           params: {
             category: category,
             search: config.queryKey[4] || undefined,
@@ -192,7 +192,7 @@ function EventsPage() {
     });
   };
 
-  const toggleHidden = async (news: MinimumNews) => {
+  const toggleHidden = async (news: MinNews) => {
     if (news.hidden) {
       showNewsPopup.fire({
         preConfirm: async () => {
@@ -263,7 +263,7 @@ function EventsPage() {
               ref={calendarRef}
             >
               <div
-                className="input flex h-full items-center justify-between py-2 px-4"
+                className="input flex h-full items-center justify-between px-4 py-2"
                 onClick={() => showCalendar(prevVal => !prevVal)}
               >
                 {datesRange[0].startDate && datesRange[0].endDate ? (
@@ -296,7 +296,7 @@ function EventsPage() {
               className="gridRow flex cursor-pointer items-center"
             >
               <div
-                className="flex flex-1 items-center border-r-2 border-grayBorder py-5 px-8 "
+                className="flex flex-1 items-center border-r-2 border-grayBorder px-8 py-5 "
                 onClick={() => router.push(`/admin/news/${item.id}`)}
               >
                 <img
