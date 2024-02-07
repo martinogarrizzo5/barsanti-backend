@@ -34,7 +34,7 @@ export default function App({ Component, pageProps }: AppProps) {
         axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 
         // on each request refresh token if necessary and attach it to the request
-        const interceptor = axios.interceptors.request.use(async config => {
+        axios.interceptors.request.use(async config => {
           const token = await user.getIdToken();
           axios.defaults.headers.common["Authorization"] = "Bearer " + token;
           return config;
@@ -86,14 +86,15 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
-  if (auth.isLoading) return <InitialLoading />;
+  if (auth.isLoading || (auth.user === null && router.pathname !== "/login"))
+    return <InitialLoading />;
 
   return (
     <QueryClientProvider client={queryClient}>
       <Layout>
         <Component {...pageProps} />
       </Layout>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools />
     </QueryClientProvider>
   );
 }

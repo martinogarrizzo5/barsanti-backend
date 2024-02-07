@@ -40,7 +40,7 @@ async function getCategories(
     include: {
       _count: {
         select: {
-          news: true,
+          news: { where: { deletedAt: null } },
         },
       },
     },

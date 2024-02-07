@@ -21,7 +21,7 @@ function Login() {
       <Head>
         <title>Login</title>
       </Head>
-      <div className="mx-auto flex h-[100vh] w-[600px] flex-col items-center justify-center">
+      <div className="h-[100vh] w-[600px] mx-auto flex flex-col items-center justify-center">
         <Image alt="logo of the school" src={logoImg} height={90} />
         <button
           className="btn mt-6 flex items-center px-8 py-3"

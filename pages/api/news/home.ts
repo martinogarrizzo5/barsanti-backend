@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import apiHandler from "@/lib/apiHandler";
 import prisma from "@/lib/prisma";
 import { addDaysToDate, getTodayDate, getYesterdayDate } from "@/lib/dates";
-import { newsDto } from "@/dto/newsDto";
+import { compileNewsDto } from "@/dto/newsDto";
 
 export default apiHandler().get(getHomeData);
 
@@ -10,29 +10,28 @@ export default apiHandler().get(getHomeData);
 async function getHomeData(req: NextApiRequest, res: NextApiResponse) {
   const startDate = addDaysToDate(getTodayDate(), -7);
 
-  const minNewsProps = {
-    id: true,
-    title: true,
-    date: true,
-    imageName: true,
-    createdAt: true,
-    updatedAt: true,
-    category: {
-      select: {
-        id: true,
-        name: true,
-      },
-    },
-    hidden: true,
-  };
-
   const latestNewsQuery = prisma.news.findMany({
-    select: minNewsProps,
+    select: {
+      id: true,
+      title: true,
+      date: true,
+      imageName: true,
+      createdAt: true,
+      updatedAt: true,
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      hidden: true,
+    },
     where: {
       date: {
         gte: startDate,
       },
       hidden: false,
+      deletedAt: null,
     },
     orderBy: {
       date: "asc",
@@ -41,7 +40,21 @@ async function getHomeData(req: NextApiRequest, res: NextApiResponse) {
   });
 
   const highlitedNewsQuery = prisma.news.findMany({
-    select: minNewsProps,
+    select: {
+      id: true,
+      title: true,
+      date: true,
+      imageName: true,
+      createdAt: true,
+      updatedAt: true,
+      category: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      hidden: true,
+    },
     where: {
       highlighted: true,
       hidden: false,
@@ -51,13 +64,13 @@ async function getHomeData(req: NextApiRequest, res: NextApiResponse) {
     },
   });
 
-  const [latestNews, highlightedNews] = await prisma.$transaction([
+  const [latestNews, highlightedNews] = await Promise.all([
     latestNewsQuery,
     highlitedNewsQuery,
   ]);
 
   return res.json({
-    latestNews: latestNews.map(newsDto),
-    highlightedNews: highlightedNews.map(newsDto),
+    latestNews: latestNews.map(compileNewsDto),
+    highlightedNews: highlightedNews.map(compileNewsDto),
   });
 }

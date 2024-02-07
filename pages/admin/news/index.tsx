@@ -16,7 +16,7 @@ import "react-date-range/dist/theme/default.css";
 import useComponentVisible from "@/hooks/useComponentVisible";
 import RefetchingIndicator from "@/components/RefetchingIndicator";
 import Main from "@/components/Main";
-import { MinimumNews, NewsDto } from "@/dto/newsDto";
+import { MinimumNews } from "@/dto/newsDto";
 import {
   AiOutlineDelete,
   AiOutlineEyeInvisible,
@@ -29,7 +29,6 @@ import {
   hideNewsPopup,
   showNewsPopup,
 } from "@/components/DeletePopup";
-import Image from "next/image";
 import PageControl from "@/components/PageControl";
 import { requestErrorToast, requestSuccessToast } from "@/components/Toast";
 

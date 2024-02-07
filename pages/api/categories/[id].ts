@@ -17,6 +17,7 @@ import { File } from "formidable";
 import fs from "fs/promises";
 import { getCategoryImageName } from "@/lib/categoriesUtils";
 import { move as moveFile } from "fs-extra";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 
 export const config = {
   api: {
@@ -128,24 +129,26 @@ async function deleteCategory(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const { id } = results.data;
-
+  
   try {
     // deleting a category will put as null the categoryId of all the news that had that category
-    await prisma.category.delete({ where: { id: id } });
-  } catch (err) {
-    return res.json({ message: "Categoria inesistente" });
-  }
-
-  // delete the image related
-  try {
-    const uploadDir = await setupUploadDir();
-    if (uploadDir === null) throw new Error("Impossibile eliminare il file");
-
-    await fs.rm(path.join(uploadDir, categoryImageDir, id.toString()), {
-      recursive: true,
+    await prisma.category.update({
+      where: { id: id },
+      data: {
+        deletedAt: new Date(),
+        news: {
+          updateMany: {
+            where: { categoryId: id },
+            data: { categoryId: null },
+          },
+        },
+      },
     });
   } catch (err) {
-    return res.status(500).json({ message: "Impossibile eliminare il file" });
+    const error = err as PrismaClientKnownRequestError;
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "Categoria inesistente" });
+    }
   }
 
   return res.json({ message: "Categoria eliminata con successo" });

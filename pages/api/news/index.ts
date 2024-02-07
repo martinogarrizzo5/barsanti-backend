@@ -14,7 +14,7 @@ import setupUploadDir, { ensureDirExistance } from "@/lib/setupUploadDir";
 import { newsImageDir, newsFilesDir } from "@/lib/uploadFolders";
 import fs from "fs/promises";
 import { fromZodError } from "zod-validation-error";
-import { newsDto as formatNews } from "@/dto/newsDto";
+import { compileNewsDto as formatNews } from "@/dto/newsDto";
 import {
   deleteNewsFiles,
   getNewsFileName,
@@ -91,6 +91,7 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
         gte: startDate,
         lte: endDate,
       },
+      deletedAt: null,
       highlighted: highlighted ?? undefined,
       OR: [
         {
@@ -218,7 +219,7 @@ async function createNews(req: MultipartAuthRequest, res: NextApiResponse) {
 
     return res.status(201).json({ message: "Notizia creata con successo" });
   } catch {
-    // TODO: delete files uploaded
+    // delete files uploaded
     await deleteNewsFiles(news.id);
 
     // delete news if image or files upload fails

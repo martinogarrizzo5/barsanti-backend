@@ -3,7 +3,7 @@ import apiHandler from "@/lib/apiHandler";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { booleanString, numericString } from "@/lib/zodExtensions";
-import { newsDto as formatNews } from "@/dto/newsDto";
+import { compileNewsDto as formatNews } from "@/dto/newsDto";
 import {
   MultipartAuthRequest,
   parseMultipart,
@@ -12,15 +12,12 @@ import setupUploadDir, { ensureDirExistance } from "@/lib/setupUploadDir";
 import path from "path";
 import { newsFilesDir, newsImageDir } from "@/lib/uploadFolders";
 import fs from "fs/promises";
-import {
-  deleteNewsFiles,
-  getNewsFileName,
-  getNewsImageName,
-} from "@/lib/newsUtils";
-import { File as FormFile } from "formidable";
+import { getNewsFileName, getNewsImageName } from "@/lib/newsUtils";
+import { File, File as FormFile } from "formidable";
 import { auth, editorPrivilege } from "@/middlewares/auth";
 import { fromZodError } from "zod-validation-error";
 import { move as moveFile } from "fs-extra";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 
 export const config = {
   api: {
@@ -52,6 +49,9 @@ async function getNews(req: NextApiRequest, res: NextApiResponse) {
         },
       },
       files: {
+        where: {
+          deletedAt: null,
+        },
         select: {
           id: true,
           name: true,
@@ -123,7 +123,15 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
     newImageName = getNewsImageName(req.files?.image);
   }
 
-  // update news data
+  let newFiles: File[] = [];
+  if (req.files?.newFiles) {
+    if (Array.isArray(req.files.newFiles)) {
+      newFiles = req.files.newFiles;
+    } else {
+      newFiles = [req.files.newFiles];
+    }
+  }
+
   try {
     await prisma.news.update({
       where: { id: id },
@@ -136,10 +144,23 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
         hidden: hidden,
         date: date ? new Date(date) : undefined,
         files: {
-          deleteMany: {
-            id: {
-              in: deletedFiles ?? [],
+          updateMany: {
+            where: {
+              id: {
+                in: deletedFiles ?? [],
+              },
             },
+            data: {
+              deletedAt: new Date(),
+            },
+          },
+          createMany: {
+            data: newFiles?.map(file => {
+              return {
+                name: getNewsFileName(file),
+                userId: req.user!.id,
+              };
+            }),
           },
         },
       },
@@ -198,29 +219,8 @@ async function editNews(req: MultipartAuthRequest, res: NextApiResponse) {
         }
       }
 
-      // delete old files
-      if (deletedFiles && oldNews.files.length > 0) {
-        for (const fileId of deletedFiles) {
-          const oldFile = oldNews.files.find(f => f.id === fileId);
-          if (oldFile) {
-            fs.rm(path.join(filesDir, oldFile.name));
-          }
-        }
-      }
-
-      let newFilesName = newFiles.map(file => getNewsFileName(file));
-      // create new files references
-      await prisma.file.createMany({
-        data: newFiles.map((file, i) => {
-          return {
-            name: newFilesName[i],
-            newsId: oldNews.id,
-            userId: req.user!.id,
-          };
-        }),
-      });
-
       // move new files to the right directory
+      let newFilesName = newFiles.map(file => getNewsFileName(file));
       await Promise.all(
         newFiles.map((file, i) => {
           const tempFilePath = file.filepath;
@@ -247,38 +247,28 @@ async function deleteNews(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const { id } = results.data;
-
-  const deleteNewsQuery = prisma.news.delete({ where: { id: id } });
-  const deleteFilesQuery = prisma.file.deleteMany({
-    where: { newsId: id },
-  });
-
-  let news;
-  try {
-    const [filesCount, newsData] = await prisma.$transaction([
-      deleteFilesQuery,
-      deleteNewsQuery,
-    ]);
-    news = newsData;
-  } catch (err) {
-    console.log(err);
-    return res.status(404).json({ message: "Notizia inesistente" });
-  }
+  const deletionDate = new Date();
 
   try {
-    // delete files and images from disk
-    await deleteNewsFiles(news.id);
+    await prisma.news.update({
+      where: { id: id },
+      data: {
+        deletedAt: deletionDate,
+        files: {
+          updateMany: {
+            where: { newsId: id },
+            data: { deletedAt: deletionDate },
+          },
+        },
+      },
+    });
   } catch (err) {
-    console.log(err);
+    const error = err as PrismaClientKnownRequestError;
+    if (error.code === "P2025") {
+      return res.status(404).json({ message: "News inesistente" });
+    }
 
-    // rollback news deletion
-    await prisma.news.create({ data: news });
-
-    // TODO: rollback files deletion
-
-    return res
-      .status(500)
-      .json({ message: "Impossibile eliminare i file della news" });
+    return res.status(500).json({ message: "Impossibile eliminare la news" });
   }
 
   return res.json({ message: "Notizia eliminata con successo" });

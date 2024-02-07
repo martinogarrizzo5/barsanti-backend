@@ -11,16 +11,17 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  googleId  String   @unique
+  id        Int       @id @default(autoincrement())
+  googleId  String    @unique
   name      String
-  email     String   @unique
-  role      Role     @default(STUDENT)
-  isEditor  Boolean  @default(false)
+  email     String    @unique
+  role      Role      @default(STUDENT)
+  isEditor  Boolean   @default(false)
   files     File[]
   news      News[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 enum Role {
@@ -44,27 +45,30 @@ model News {
   hidden      Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   @@fulltext([description])
   @@fulltext([title, description])
 }
 
 model Category {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
   imageName String
   news      News[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 model File {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
   userId    Int
-  news      News     @relation(fields: [newsId], references: [id])
+  news      News      @relation(fields: [newsId], references: [id])
   newsId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }

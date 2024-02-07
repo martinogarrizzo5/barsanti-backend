@@ -1,8 +1,11 @@
 import { firebaseAuth } from "@/firebase/firebaseApp";
 import { User } from "@prisma/client";
-import { User as FirebaseUser } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  User as FirebaseUser,
+  signInWithRedirect,
+} from "firebase/auth";
 import { create } from "zustand";
 import axios, { AxiosError } from "axios";
 import Swal from "sweetalert2";
@@ -24,7 +27,7 @@ const useAuthStore = create<AuthState>(set => ({
   signInWithGoogle: async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(firebaseAuth, provider);
+      await signInWithRedirect(firebaseAuth, provider);
     } catch (err) {
       console.log(err);
       const error = err as FirebaseError;

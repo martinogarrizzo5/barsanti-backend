@@ -19,7 +19,7 @@ export interface DtoFile extends PrismaFile {
   url: string;
 }
 
-export const newsDto = (news: MinimumNews) => {
+export const compileNewsDto = (news: MinimumNews) => {
   const imageUrl = urlJoin(
     imageHost!,
     newsImageDir,
@@ -50,4 +50,4 @@ export const newsDto = (news: MinimumNews) => {
   return { ...news, imageUrl: imageUrl, ...(files && { files }) };
 };
 
-export type NewsDto = ReturnType<typeof newsDto>;
+export type NewsDto = ReturnType<typeof compileNewsDto>;
