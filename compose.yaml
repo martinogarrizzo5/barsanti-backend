@@ -5,7 +5,7 @@ services:
     image: mysql:latest
 
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - barsanti_db_data:/var/lib/mysql
 
