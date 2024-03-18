@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:latest
+
+    ports:
+      - "3307:3306"
+    volumes:
+      - barsanti_db_data:/var/lib/mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: barsantiNews
+
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      DATABASE_URL: mysql://root:password@db:3306/barsantiNews
+      FILES_HOST: "http://localhost:3000"
+
+    depends_on:
+      - db
+
+volumes:
+  barsanti_db_data:
