@@ -140,7 +140,9 @@ async function createNews(req: MultipartAuthRequest, res: NextApiResponse) {
   if (!result.success) {
     return res
       .status(400)
-      .json({ message: fromZodError(result.error).message });
+      .json({
+        message: fromZodError(result.error, { maxIssuesInMessage: 1 }).message,
+      });
   }
   const image = rawImage as FormFile;
   if (!image.mimetype?.startsWith("image/"))

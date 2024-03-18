@@ -27,6 +27,7 @@ module.exports = {
         controlActiveForeground: "#2F3E46",
         grayBorder: "#D0DDE1",
         placeholder: "#B8C0C7",
+        error: "#E53E3E",
       },
     },
   },

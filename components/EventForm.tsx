@@ -27,6 +27,7 @@ import "react-quill/dist/quill.snow.css";
 import { DtoFile, NewsDto } from "@/dto/newsDto";
 import classNames from "classnames";
 import { getTodayDate } from "@/lib/dates";
+import Image from "next/image";
 
 export type EventFormData = {
   title: string;
@@ -120,6 +121,13 @@ function EventForm(props: EventFormProps) {
     }
   };
 
+  const baseValidation = {
+    required: {
+      value: true,
+      message: "Campo obbligatorio",
+    },
+  };
+
   if (areCategoriesLoading) {
     return <LoadingIndicator />;
   }
@@ -132,22 +140,33 @@ function EventForm(props: EventFormProps) {
     <form onSubmit={onSave}>
       <div className="mb-10 flex items-end">
         <div className="flex-[4]">
-          <label className="label mb-2" htmlFor="title">
-            Titolo
+          <label
+            className={classNames("label mb-2", errors.title && "text-error")}
+            htmlFor="title"
+          >
+            Titolo *
           </label>
           <input
             type="text"
             id="title"
-            className="input w-full px-4 py-2"
+            className={classNames(
+              "input w-full px-4 py-2",
+              errors.title && "border-error"
+            )}
             placeholder="Inserisci titolo"
-            {...register("title")}
+            {...register("title", baseValidation)}
           />
+          {errors.title && (
+            <span className={classNames(errors.title && "text-error")}>
+              {errors.title.message}
+            </span>
+          )}
         </div>
         <Controller
           name="highlighted"
           control={control}
           render={({ field: { value, onChange } }) => (
-            <div className="ml-10 mb-2  flex-[2] ">
+            <div className="mb-2 ml-10  flex-[2] ">
               <Checkbox label="In evidenza" value={value} onChange={onChange} />
             </div>
           )}
@@ -184,14 +203,14 @@ function EventForm(props: EventFormProps) {
             >
               <label className="label mb-2">Data</label>
               <div
-                className="input flex h-full items-center justify-between py-2 px-4"
+                className="input flex h-full items-center justify-between px-4 py-2"
                 onClick={() => setCalendarShown(prevVal => !prevVal)}
               >
                 <span className="font-normal">
                   {date != null ? (
                     date.toLocaleDateString()
                   ) : (
-                    <span className="text-placeholder">Seleziona data</span>
+                    <span className="text-placeholder">Seleziona data *</span>
                   )}
                 </span>
                 <BsCalendar3 />
@@ -211,54 +230,90 @@ function EventForm(props: EventFormProps) {
         />
       </div>
       <div className="mb-12 flex w-full flex-col">
-        <label className="label mb-2" htmlFor="description">
-          Descrizione
+        <label
+          className={classNames(
+            "label mb-2",
+            errors.description && "text-error"
+          )}
+          htmlFor="description"
+        >
+          Descrizione *
         </label>
         <Controller
           control={control}
+          rules={baseValidation}
           name="description"
-          render={({ field: { value, onChange } }) => (
+          render={({ field: { value, onChange }, formState }) => (
             // NOTE! there is a custom style for ql-editor in global.css
-            <ReactQuill
-              placeholder="Inserisci descrizione"
-              theme="snow"
-              value={value}
-              onChange={onChange}
-              className="bg-white"
-              modules={{
-                toolbar: [
-                  [{ header: "1" }, { header: "2" }],
-                  ["bold", "italic", "underline", "strike"],
-                  [{ color: [] }, { background: [] }],
-                  ["link"],
-                  ["clean"],
-                ],
-              }}
-            />
+            <div>
+              <ReactQuill
+                placeholder="Inserisci descrizione"
+                theme="snow"
+                value={value}
+                onChange={onChange}
+                className={classNames(
+                  "bg-white",
+                  formState.errors.description && "!border-error"
+                )}
+                modules={{
+                  toolbar: [
+                    [{ header: "1" }, { header: "2" }],
+                    ["bold", "italic", "underline", "strike"],
+                    [{ color: [] }, { background: [] }],
+                    ["link"],
+                    ["clean"],
+                  ],
+                }}
+              />
+              {formState.errors.description && (
+                <span className="text-error">
+                  {formState.errors.description.message}
+                </span>
+              )}
+            </div>
           )}
         />
       </div>
       <div className="mb-12 flex h-60 items-stretch justify-between">
         <Controller
           control={control}
+          rules={baseValidation}
           name="image"
-          render={({ field: { value: image, onChange } }) => (
+          render={({ field: { value: image, onChange }, formState }) => (
             <div className="flex h-full w-4/12 flex-col">
-              <label className="label mb-2">Immagine</label>
-              <div className="input relative h-full w-full overflow-hidden">
+              <label
+                className={classNames(
+                  "label mb-2",
+                  formState.errors.image && "!text-error"
+                )}
+              >
+                Immagine *
+              </label>
+              <div
+                className={classNames(
+                  "input relative h-full w-full overflow-hidden",
+                  formState.errors.image && "!border-error"
+                )}
+              >
                 {image && (
-                  <img
+                  <Image
                     src={getImageSrc(image)}
                     className="absolute h-full w-full object-cover"
+                    alt="event"
                   />
                 )}
                 <FileInput
                   showImageIcon
                   onFilesChange={val => onChange(val ? val[0] : null)}
-                  className="btn absolute bottom-0 right-0 rounded-tl-xl rounded-tr-none rounded-br-md rounded-bl-none px-5 py-2"
+                  className="btn absolute bottom-0 right-0 rounded-bl-none rounded-br-md rounded-tl-xl rounded-tr-none px-5 py-2"
                   accept="image/*"
                 />
               </div>
+              {formState.errors.image && (
+                <span className="!text-error">
+                  {formState.errors.image.message}
+                </span>
+              )}
             </div>
           )}
         />
@@ -301,7 +356,7 @@ function EventForm(props: EventFormProps) {
                     onChange([...files, ...newFiles]);
                   }}
                   multipleFiles
-                  className="btn absolute bottom-0 right-0 rounded-tl-xl rounded-tr-none rounded-br-md rounded-bl-none px-5 py-2"
+                  className="btn absolute bottom-0 right-0 rounded-bl-none rounded-br-md rounded-tl-xl rounded-tr-none px-5 py-2"
                 />
               </div>
             </div>

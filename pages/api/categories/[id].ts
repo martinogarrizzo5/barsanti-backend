@@ -129,26 +129,30 @@ async function deleteCategory(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const { id } = results.data;
-  
+
   try {
     // deleting a category will put as null the categoryId of all the news that had that category
     await prisma.category.update({
       where: { id: id },
       data: {
         deletedAt: new Date(),
-        news: {
-          updateMany: {
-            where: { categoryId: id },
-            data: { categoryId: null },
-          },
-        },
       },
     });
+
+    await prisma.news.updateMany({
+      where: { categoryId: id },
+      data: { categoryId: null },
+    });
   } catch (err) {
+    console.log(err);
     const error = err as PrismaClientKnownRequestError;
     if (error.code === "P2025") {
       return res.status(404).json({ message: "Categoria inesistente" });
     }
+
+    return res
+      .status(500)
+      .json({ message: "Impossibile eliminare la categoria" });
   }
 
   return res.json({ message: "Categoria eliminata con successo" });

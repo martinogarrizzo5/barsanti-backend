@@ -34,6 +34,7 @@ async function getCategories(
   res: NextApiResponse<GetCategoryResponse>
 ) {
   const categories = await prisma.category.findMany({
+    where: { deletedAt: null },
     orderBy: {
       name: "asc",
     },

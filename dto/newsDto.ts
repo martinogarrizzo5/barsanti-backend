@@ -1,6 +1,6 @@
 import { imageHost } from "@/lib/fileUtils";
 import { newsFilesDir, newsImageDir } from "@/lib/uploadFolders";
-import { News, File as PrismaFile } from "@prisma/client";
+import { Category, News, File as PrismaFile } from "@prisma/client";
 import urlJoin from "url-join";
 import { exclude } from "./modelUtils";
 
@@ -12,6 +12,13 @@ export interface MinNews {
   createdAt: Date;
   updatedAt: Date;
   hidden: boolean;
+  highlighted?: boolean;
+  date: Date;
+  description?: string;
+  category?: {
+    id: number;
+    name: string;
+  } | null;
   [key: string]: any;
 }
 
