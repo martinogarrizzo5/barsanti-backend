@@ -30,7 +30,7 @@ services:
     networks:
       - traefik-reverse-proxy_default
 
-    uploads:
+    volumes:
       - uploads:/app/uploads
 
     #Enable traefik autodiscovery
