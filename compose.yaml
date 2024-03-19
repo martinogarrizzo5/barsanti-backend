@@ -10,9 +10,8 @@ services:
     volumes:
       - barsanti_db_data:/var/lib/mysql
 
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: barsantiNews
+    env_file:
+      - stack.env
 
     networks:
       - traefik-reverse-proxy_default
@@ -22,9 +21,8 @@ services:
       context: ./
       dockerfile: Dockerfile
 
-    environment:
-      DATABASE_URL: mysql://root:password@db:3306/barsantiNews
-      FILES_HOST: "http://localhost:3000"
+    env_file:
+      - stack.env      
 
     depends_on:
       - db
@@ -47,3 +45,6 @@ volumes:
 networks:
   traefik-reverse-proxy_default:
     external: true
+
+env_file:
+  - path: ./stack.env
