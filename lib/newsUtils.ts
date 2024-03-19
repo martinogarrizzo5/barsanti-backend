@@ -29,5 +29,8 @@ export function getNewsImageName(image: FormFile) {
 export function getNewsFileName(file: FormFile) {
   if (!file.originalFilename) throw new Error("Nome file non trovato");
 
-  return file.originalFilename;
+  // replace spaces in file name with underscores
+  const fileName = file.originalFilename.replace(/ /g, "_");
+
+  return fileName;
 }
