@@ -15,6 +15,7 @@ COPY . .
 # Build the Next.js app  
 RUN npm run prisma-generate
 RUN npm run build  
+RUN npm run prisma-migrate
 
 # Expose the port the app will run on  
 EXPOSE 3000  
