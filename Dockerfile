@@ -15,12 +15,11 @@ COPY . .
 # Build the Next.js app  
 RUN npm run prisma-generate
 RUN npm run build  
-RUN npm run prisma-migrate
 
 # Expose the port the app will run on  
 EXPOSE 3000  
 
 ENV NODE_ENV "production"
 
-# Start the app  
-CMD ["npm", "start"] 
+# Start the app (wait 10 sec so that the database is ready to accept connections) 
+CMD ["/bin/sh", "-c", "sleep 10 && npm run prod"]

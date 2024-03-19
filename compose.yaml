@@ -6,6 +6,7 @@ services:
 
     ports:
       - "3306:3306"
+
     volumes:
       - barsanti_db_data:/var/lib/mysql
 
@@ -13,13 +14,13 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: barsantiNews
 
+    networks:
+      - traefik-reverse-proxy_default
+
   api:
     build:
       context: ./
       dockerfile: Dockerfile
-
-    ports:
-      - "3000:3000"
 
     environment:
       DATABASE_URL: mysql://root:password@db:3306/barsantiNews
@@ -28,5 +29,21 @@ services:
     depends_on:
       - db
 
+    networks:
+      - traefik-reverse-proxy_default
+
+    #Enable traefik autodiscovery
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.rule=Host(`eventiapp.itteam.barsanti.edu.it`)"
+      - "traefik.http.routers.api.tls=true"
+      - "traefik.http.routers.api.tls.certresolver=production"
+      - "traefik.http.services.api.loadbalancer.server.port=3000"
+
 volumes:
   barsanti_db_data:
+
+networks:
+  traefik-reverse-proxy_default:
+    external: true
