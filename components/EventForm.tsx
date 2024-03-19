@@ -296,7 +296,7 @@ function EventForm(props: EventFormProps) {
                 )}
               >
                 {image && (
-                  <Image
+                  <img
                     src={getImageSrc(image)}
                     className="absolute h-full w-full object-cover"
                     alt="event"

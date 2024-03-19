@@ -12,15 +12,12 @@ datasource db {
 
 model User {
   id        Int       @id @default(autoincrement())
-  googleId  String    @unique
   name      String
   email     String    @unique
   role      Role      @default(STUDENT)
   isEditor  Boolean   @default(false)
   files     File[]
   news      News[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
 
