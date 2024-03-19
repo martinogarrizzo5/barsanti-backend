@@ -45,6 +45,3 @@ volumes:
 networks:
   traefik-reverse-proxy_default:
     external: true
-
-env_file:
-  - path: ./stack.env
