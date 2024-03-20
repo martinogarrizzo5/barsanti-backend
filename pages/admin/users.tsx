@@ -9,7 +9,7 @@ function UsersPage() {
         <title>Utenti</title>
       </Head>
       <Main>
-        <h1 className="text-3xl font-bold">Coming Soon!</h1>
+        <h1 className="text-3xl font-bold">Section coming Soon!</h1>
       </Main>
     </>
   );
