@@ -22,4 +22,4 @@ EXPOSE 3000
 ENV NODE_ENV "production"
 
 # Start the app (wait 10 sec so that the database is ready to accept connections) 
-CMD ["/bin/sh", "-c", "sleep 10 && npm run prod"]
+CMD ["/bin/sh", "-c", "sleep 5 && npm run prod"]
