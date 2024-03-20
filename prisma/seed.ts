@@ -7,7 +7,6 @@ async function main() {
     data: {
       email: "martin.meneghetti@barsanti.edu.it",
       role: "ADMIN",
-      googleId: "1234",
       name: "martin",
       isEditor: true,
     },
