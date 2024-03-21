@@ -13,22 +13,16 @@ services:
     env_file:
       - stack.env
 
-    networks:
-      - traefik-reverse-proxy_default
-
   api:
     build:
-      context: ./
+      context: .
       dockerfile: Dockerfile
-
+      
     env_file:
       - stack.env      
 
     depends_on:
       - db
-
-    networks:
-      - traefik-reverse-proxy_default
 
     volumes:
       - uploads:/app/uploads
@@ -45,7 +39,3 @@ services:
 volumes:
   barsanti_db_data:
   uploads:
-
-networks:
-  traefik-reverse-proxy_default:
-    external: true
