@@ -3,30 +3,25 @@ version: "3.8"
 services:
   db:
     image: mysql:latest
-
     ports:
       - "3306:3306"
-
     volumes:
       - barsanti_db_data:/var/lib/mysql
-
     env_file:
       - stack.env
+    restart: unless-stopped
+
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
-      
     env_file:
       - stack.env      
-
     depends_on:
       - db
-
     volumes:
       - uploads:/app/uploads
-
     #Enable traefik autodiscovery
     labels:
       - "traefik.enable=true"
@@ -35,6 +30,8 @@ services:
       - "traefik.http.routers.api.tls=true"
       - "traefik.http.routers.api.tls.certresolver=production"
       - "traefik.http.services.api.loadbalancer.server.port=3000"
+    restart: unless-stopped
+
 
 volumes:
   barsanti_db_data:
